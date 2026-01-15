@@ -6,8 +6,14 @@ import anthropic
 from execution.utils import get_blog_config, get_airtable_client, get_base_id
 
 # Initialize Anthropic Client
+api_key = os.environ.get("ANTHROPIC_API_KEY")
+if not api_key:
+    print("WARNING: ANTHROPIC_API_KEY is None")
+else:
+    print(f"DEBUG: ANTHROPIC_API_KEY loaded: {api_key[:5]}...{api_key[-4:]} (Length: {len(api_key)})")
+
 client = anthropic.Anthropic(
-    api_key=os.environ.get("ANTHROPIC_API_KEY")
+    api_key=api_key
 )
 
 def generate_post_content(blog_config):
@@ -25,7 +31,7 @@ def generate_post_content(blog_config):
 
     try:
         message = client.messages.create(
-            model="claude-3-5-sonnet-latest",
+            model="claude-3-haiku-20240307",
             max_tokens=1000,
             temperature=0.7,
             system=system_prompt,
