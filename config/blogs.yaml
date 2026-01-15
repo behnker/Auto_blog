@@ -6,7 +6,7 @@ blogs:
     name: "Example Blog"
     domain: "example-blog.up.railway.app" # The domain this blog is served on
     airtable:
-      base_id_env: "AIRTABLE_BASE_ID_EXAMPLE" # Env var name containing the Base ID
+      base_id_env: "AIRTABLE_BASE_ID" # Env var name containing the Base ID
       table_name: "Posts"
     system_prompt_key: "PROMPT_EXAMPLE" # Key for system prompt (could be file path or env var)
     affiliate_tag: "example-20"
