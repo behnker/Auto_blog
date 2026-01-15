@@ -4,7 +4,7 @@
 blogs:
   - id: "example_blog"
     name: "Example Blog"
-    domain: "example-blog.up.railway.app" # The domain this blog is served on
+    domain: "web-production-5d27bf.up.railway.app" # The domain this blog is served on
     airtable:
       base_id_env: "AIRTABLE_BASE_ID" # Env var name containing the Base ID
       table_name: "Posts"
