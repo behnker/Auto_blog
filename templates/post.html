@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article>
+    <h1>{{ post.fields.Title }}</h1>
+    <div class="post-meta">{{ post.fields.PublishedDate }}</div>
+
+    <div class="content">
+        {# In a real app, use a markdown filter here #}
+        {{ post.fields.Content | safe }}
+    </div>
+</article>
+
+<div style="margin-top: 40px;">
+    <a href="/">&larr; Back to Home</a>
+</div>
+{% endblock %}
