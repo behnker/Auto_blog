@@ -22,7 +22,15 @@ def generate_post_content(blog_config):
     TODO: Implement "Deep Well" and "Knowledge Integration" logic here.
     For now, this is a placeholder implementation.
     """
-    system_prompt = "You are an expert blogger. Write a short, engaging blog post about a random topic related to the blog's theme."
+    # Load System Prompt from directives/prompts/{blog_id}.md
+    prompt_path = os.path.join("directives", "prompts", f"{blog_config['id']}.md")
+    if os.path.exists(prompt_path):
+        with open(prompt_path, "r") as f:
+            system_prompt = f.read()
+        print(f"Loaded system prompt from {prompt_path}")
+    else:
+        print(f"Warning: Prompt file {prompt_path} not found. Using default.")
+        system_prompt = "You are an expert blogger. Write a short, engaging blog post about a random topic related to the blog's theme."
     
     # In a real implementation, we would fetch 'Knowledge' from Airtable here
     # and inject it into the prompt.
