@@ -57,36 +57,101 @@ async def agencies_list(request: Request):
     if not is_authenticated(request):
         return RedirectResponse(url="/admin/login")
         
-    # Mock Agency Data for MVP (Phase 4 will link this to Airtable 'Agencies' table)
-    agencies_mock = [
-        {"id": "ag-1", "name": "Atlas Content Lab", "blogs_count": 3, "posts_7d": 18, "avg_qa": 88},
-        {"id": "ag-2", "name": "Northstar Studio", "blogs_count": 2, "posts_7d": 10, "avg_qa": 91}
-    ]
-    return templates.TemplateResponse("admin/agencies.html", {"request": request, "agencies": agencies_mock})
+    agencies = []
+    try:
+        api = get_airtable_client()
+        base_id = os.environ.get("AIRTABLE_BASE_ID")
+        if base_id:
+            table = api.table(base_id, "Agencies")
+            records = table.all()
+            for r in records:
+                f = r["fields"]
+                agencies.append({
+                    "id": r["id"],
+                    "name": f.get("Name", "Unnamed"),
+                    "blogs_count": 0, # TODO: Phase 5 - Implement Rollup in Airtable
+                    "posts_7d": 0,    # TODO: Phase 5
+                    "avg_qa": 0       # TODO: Phase 5
+                })
+    except Exception as e:
+        print(f"Error fetching agencies: {e}")
+        
+    return templates.TemplateResponse("admin/agencies.html", {"request": request, "agencies": agencies})
 
 @router.get("/authors", response_class=HTMLResponse)
 async def authors_list(request: Request):
     if not is_authenticated(request):
         return RedirectResponse(url="/admin/login")
         
-    # Mock Author Data (Phase 4 will link to 'Author_Profile')
-    authors_mock = [
-        {"id": "au-1", "name": "R. Behnke", "bio": "AI transformation + operations automation.", "voice": "Professional"},
-        {"id": "au-2", "name": "E. Ogier", "bio": "Witty analyst voice. Loves analogies.", "voice": "Witty"}
-    ]
-    return templates.TemplateResponse("admin/authors.html", {"request": request, "authors": authors_mock})
+    authors = []
+    try:
+        api = get_airtable_client()
+        base_id = os.environ.get("AIRTABLE_BASE_ID")
+        if base_id:
+            # Fetch Voices first for Lookup
+            voices_table = api.table(base_id, "Voice_Profiles")
+            voices_all = voices_table.all()
+            voice_map = {v["id"]: v["fields"].get("Name", "Unknown") for v in voices_all}
+
+            # Fetch Agencies for Lookup (Optional, if we want to show Agency per author)
+            agencies_table = api.table(base_id, "Agencies")
+            agencies_all = agencies_table.all()
+            agency_map = {a["id"]: a["fields"].get("Name", "Unknown") for a in agencies_all}
+
+            table = api.table(base_id, "Author_Profile")
+            records = table.all()
+            for r in records:
+                f = r["fields"]
+                
+                # Resolve Voice Name
+                voice_ids = f.get("Voice_Profile", [])
+                voice_name = "None"
+                if voice_ids:
+                     # Get first voice name
+                     voice_name = voice_map.get(voice_ids[0], "Unknown Voice")
+
+                # Resolve Agency Name
+                agency_ids = f.get("Agencies", [])
+                agency_name = "None"
+                if agency_ids:
+                    agency_name = agency_map.get(agency_ids[0], "Unknown Agency")
+                
+                authors.append({
+                    "id": r["id"],
+                    "name": f.get("Author_Name", "Unnamed"),
+                    "bio": f.get("Author_Bio", ""),
+                    "voice": voice_name,
+                    "agency": agency_name
+                })
+    except Exception as e:
+        print(f"Error fetching authors: {e}")
+
+    return templates.TemplateResponse("admin/authors.html", {"request": request, "authors": authors})
 
 @router.get("/voices", response_class=HTMLResponse)
 async def voices_list(request: Request):
     if not is_authenticated(request):
         return RedirectResponse(url="/admin/login")
         
-    # Mock Voice Data (Phase 4 'Voice_Profiles')
-    voices_mock = [
-        {"id": "vp-1", "name": "Professional", "desc": "Clear, executive, concise.", "tone": "Active voice, minimal jargon."},
-        {"id": "vp-2", "name": "Witty", "desc": "Smart humor, sharp analogies.", "tone": "Playful, still professional."}
-    ]
-    return templates.TemplateResponse("admin/voices.html", {"request": request, "voices": voices_mock})
+    voices = []
+    try:
+        api = get_airtable_client()
+        base_id = os.environ.get("AIRTABLE_BASE_ID")
+        if base_id:
+            table = api.table(base_id, "Voice_Profiles")
+            records = table.all()
+            for r in records:
+                f = r["fields"]
+                voices.append({
+                    "id": r["id"],
+                    "name": f.get("Name", "Unnamed"),
+                    "desc": f.get("Description", ""),
+                    "tone": f.get("Tone_Instructions", "")
+                })
+    except Exception as e:
+        print(f"Error fetching voices: {e}")
+
+    return templates.TemplateResponse("admin/voices.html", {"request": request, "voices": voices})
 
 @router.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request):

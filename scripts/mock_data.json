@@ -1,0 +1,386 @@
+{
+    "Agencies": [
+        {
+            "Name": "Acme Media",
+            "AdministratorEmail": "admin@acmemedia.com",
+            "Status": "Active",
+            "Date Created": "2026-01-01T09:00:00.000Z",
+            "Notes": "Primary agency for tech clients."
+        },
+        {
+            "Name": "Gravity Group",
+            "AdministratorEmail": "ops@gravitygroup.com",
+            "Status": "Active",
+            "Date Created": "2026-01-02T10:00:00.000Z",
+            "Notes": "Focuses on SaaS and B2B growth."
+        },
+        {
+            "Name": "Global Reach",
+            "AdministratorEmail": "hello@globalreach.net",
+            "Status": "Pending",
+            "Date Created": "2026-01-15T09:00:00.000Z",
+            "Notes": "Newly onboarded international agency."
+        }
+    ],
+    "Blogs": [
+        {
+            "Name": "Example Blog",
+            "Domain": "example.com",
+            "Agency": [
+                "Acme Media"
+            ],
+            "PrimaryObjective": "Traffic",
+            "DefaultMetricFocus": "Traffic",
+            "DefaultIntent": "Educate",
+            "GenerationContractDefault": "v2.0",
+            "CitationsDefault": "On",
+            "DefaultLanguage": "English",
+            "SupportedLanguages": [
+                "English",
+                "Spanish"
+            ],
+            "HomepageURL": "https://example.com",
+            "RSSFeedURL": "https://example.com/rss",
+            "AnalyticsMetricSecondary": [
+                "BounceRate",
+                "TimeOnSite",
+                "CTR"
+            ],
+            "Authors": [
+                "Jane Doe",
+                "John Smith"
+            ],
+            "SearchIntentDefault": "Informational",
+            "Notes": "Flagship tech blog."
+        },
+        {
+            "Name": "Tech Insights",
+            "Domain": "techinsights.io",
+            "Agency": [
+                "Gravity Group"
+            ],
+            "PrimaryObjective": "Leads",
+            "DefaultMetricFocus": "LeadsGenerated",
+            "DefaultIntent": "Convert",
+            "GenerationContractDefault": "v1.1",
+            "CitationsDefault": "Off",
+            "DefaultLanguage": "English",
+            "SupportedLanguages": [
+                "English",
+                "French"
+            ],
+            "HomepageURL": "https://techinsights.io",
+            "RSSFeedURL": "https://techinsights.io/rss",
+            "AnalyticsMetricSecondary": [
+                "Subscribers",
+                "ReturningVisitors"
+            ],
+            "Authors": [
+                "Alex Lee"
+            ],
+            "SearchIntentDefault": "Transactional",
+            "Notes": "High-conversion SaaS content."
+        },
+        {
+            "Name": "Health Daily",
+            "Domain": "healthdaily.net",
+            "Agency": [
+                "Acme Media"
+            ],
+            "PrimaryObjective": "Authority",
+            "DefaultMetricFocus": "Authority",
+            "DefaultIntent": "Explain",
+            "GenerationContractDefault": "v2.0",
+            "CitationsDefault": "On",
+            "DefaultLanguage": "English",
+            "SupportedLanguages": [
+                "English"
+            ],
+            "HomepageURL": "https://healthdaily.net",
+            "RSSFeedURL": "https://healthdaily.net/rss",
+            "AnalyticsMetricSecondary": [
+                "TimeOnSite"
+            ],
+            "Authors": [
+                "Jane Doe"
+            ],
+            "SearchIntentDefault": "Informational",
+            "Notes": "Verified health news."
+        }
+    ],
+    "Voice_Profiles": [
+        {
+            "Name": "Analytical",
+            "Description": "Data-driven, logical, and precise.",
+            "Tone_Instructions": "Be objective. Avoid fluff. Use active voice.",
+            "Style_Guide": "Cite sources. Use bullet points for data.",
+            "Sample_Text": "\"The data indicates a 20% increase in efficiency.\"",
+            "Sample Excerpt": "Analysis confirms the trend is statistically significant.",
+            "Tags": [
+                "Analytical",
+                "Formal"
+            ],
+            "Profile Summary": "A voice for technical and data-heavy reports."
+        },
+        {
+            "Name": "Persuasive",
+            "Description": "Motivational, direct, and action-oriented.",
+            "Tone_Instructions": "Use strong verbs. Address the reader directly.",
+            "Style_Guide": "Focus on benefits over features.",
+            "Sample_Text": "\"Transform your workflow today.\"",
+            "Sample Excerpt": "Don't wait for opportunity; create it.",
+            "Tags": [
+                "Persuasive",
+                "Casual"
+            ],
+            "Profile Summary": "Ideal for marketing copy and sales pages."
+        },
+        {
+            "Name": "Conversational",
+            "Description": "Friendly, approachable, and human.",
+            "Tone_Instructions": "Write as you speak. Be relatable.",
+            "Style_Guide": "Use contractions (can't, won't). Ask rhetorical questions.",
+            "Sample_Text": "\"Ever feel like you're spinning your wheels?\"",
+            "Sample Excerpt": "We've all been there, staring at a blank screen.",
+            "Tags": [
+                "Conversational",
+                "Humorous"
+            ],
+            "Profile Summary": " Great for blog posts and community engagement."
+        }
+    ],
+    "Author_Profile": [
+        {
+            "Author_Name": "Jane Doe",
+            "Author_Bio": "Senior Tech Editor with 10 years of experience.",
+            "Voice_Profile": [
+                "Analytical"
+            ],
+            "Agencies": [
+                "Acme Media"
+            ],
+            "Publication_Name": "Jane D."
+        },
+        {
+            "Author_Name": "John Smith",
+            "Author_Bio": "Marketing Guru and Growth Hacker.",
+            "Voice_Profile": [
+                "Persuasive"
+            ],
+            "Agencies": [
+                "Acme Media"
+            ],
+            "Publication_Name": "J. Smith"
+        },
+        {
+            "Author_Name": "Alex Lee",
+            "Author_Bio": "SaaS Strategist and startup advisor.",
+            "Voice_Profile": [
+                "Conversational"
+            ],
+            "Agencies": [
+                "Gravity Group"
+            ],
+            "Publication_Name": "Alex L."
+        }
+    ],
+    "Knowledge": [
+        {
+            "Name": "AI Content Basics",
+            "Core_Subject": "AI Content Generation",
+            "Detailed_Instructions": "Cover LLMs, prompt engineering, and ethical use.",
+            "Blog": [
+                "Example Blog"
+            ],
+            "Agency": [
+                "Acme Media"
+            ],
+            "Identity": "AI Expert",
+            "Writing Style": "Educational",
+            "Notes": "Foundation series.",
+            "Example Excerpt": "LLMs predict the next token...",
+            "Profile Summary": "Basics of AI."
+        },
+        {
+            "Name": "SaaS Marketing 101",
+            "Core_Subject": "B2B SaaS Marketing",
+            "Detailed_Instructions": "Focus on PLG (Product-Led Growth) and churn reduction.",
+            "Blog": [
+                "Tech Insights"
+            ],
+            "Agency": [
+                "Gravity Group"
+            ],
+            "Identity": "Growth Marketer",
+            "Writing Style": "Strategic",
+            "Notes": "For startup founders.",
+            "Example Excerpt": "Churn is the silent killer...",
+            "Profile Summary": "SaaS fundamentals."
+        },
+        {
+            "Name": "Holistic Health",
+            "Core_Subject": "Wellness",
+            "Detailed_Instructions": "Evidence-based wellness advice.",
+            "Blog": [
+                "Health Daily"
+            ],
+            "Agency": [
+                "Acme Media"
+            ],
+            "Identity": "Health Coach",
+            "Writing Style": "Empathetic",
+            "Notes": "Q1 Wellness drive.",
+            "Example Excerpt": "Sleep is the pillar of health.",
+            "Profile Summary": "General wellness guidelines."
+        }
+    ],
+    "Posts": [
+        {
+            "Title": "How AI is Changing Content Creation",
+            "Slug": "ai-changing-content",
+            "Content": "AI is transforming how we write, edit, and distribute content...",
+            "Status": "Published",
+            "PublishedDate": "2026-01-10T10:00:00.000Z",
+            "Blog": [
+                "Example Blog"
+            ],
+            "Author": [
+                "Jane Doe"
+            ],
+            "Voice_Profile_Override": [
+                "Analytical"
+            ],
+            "PrimaryObjective": "Traffic",
+            "SecondaryObjective": "Authority",
+            "PostIntentNote": "Educate readers on AI tools.",
+            "Agency": [
+                "Acme Media"
+            ],
+            "Brief_Status": "Approved",
+            "Brief_Data_JSON": "{\"brief\":\"AI in content\"}",
+            "Brief_Feedback": "Looks good!",
+            "ContractVersion": "v2.0",
+            "QA_Score_GEO_AEO": 95,
+            "QA_Report_JSON": "{\"score\":95}",
+            "GeneratorInput_JSON": "{\"input\":\"AI\"}",
+            "GeneratorOutput_JSON": "{\"output\":\"AI\"}",
+            "TLDR": "- AI is fast\n- AI needs human oversight\n- Future is hybrid",
+            "FAQ_JSON": "[{\"question\":\"Is AI replacing writers?\",\"answer\":\"No, it assists them.\"}]",
+            "HowTo_JSON": "{\"steps\":[\"Step 1\",\"Step 2\"]}",
+            "Tables_JSON": "[{\"title\":\"Comparison\",\"rows\":[]}]",
+            "Glossary_JSON": "[{\"term\":\"LLM\",\"definition\":\"Large Language Model\"}]",
+            "Entities_JSON": "[{\"name\":\"ChatGPT\",\"type\":\"Tool\"}]",
+            "Schema_JSONLD": "{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\"}",
+            "LLM_SnippetPack_JSON": "{\"summary\":\"AI is changing content...\"}",
+            "Citations_JSON": "[{\"text\":\"OpenAI Report\",\"url\":\"https://openai.com\"}]",
+            "CitationsEnabled": true,
+            "MetaTitle": "AI & Content Creation: The Future",
+            "MetaDescription": "Discover how AI is reshaping the content landscape.",
+            "CanonicalUrl": "https://example.com/ai-content",
+            "Tags": [
+                "AI",
+                "Content",
+                "SEO"
+            ],
+            "Metadata_JSON": "{\"version\":1}"
+        },
+        {
+            "Title": "The Future of SaaS Marketing",
+            "Slug": "future-saas-marketing",
+            "Content": "SaaS marketing is evolving rapidly with PLG...",
+            "Status": "InReview",
+            "PublishedDate": "2026-01-12T14:30:00.000Z",
+            "Blog": [
+                "Tech Insights"
+            ],
+            "Author": [
+                "Alex Lee"
+            ],
+            "Voice_Profile_Override": [
+                "Conversational"
+            ],
+            "PrimaryObjective": "Leads",
+            "SecondaryObjective": "Revenue",
+            "PostIntentNote": "Drive trial signups.",
+            "Agency": [
+                "Gravity Group"
+            ],
+            "Brief_Status": "Generated",
+            "Brief_Data_JSON": "{\"brief\":\"SaaS future\"}",
+            "Brief_Feedback": "Needs more tangible examples.",
+            "ContractVersion": "v1.1",
+            "QA_Score_GEO_AEO": 88,
+            "QA_Report_JSON": "{\"score\":88}",
+            "GeneratorInput_JSON": "{\"input\":\"SaaS\"}",
+            "GeneratorOutput_JSON": "{\"output\":\"SaaS\"}",
+            "TLDR": "- PLG is king\n- Community matters\n- Retention > Acquisition",
+            "FAQ_JSON": "[]",
+            "HowTo_JSON": "{}",
+            "Tables_JSON": "[]",
+            "Glossary_JSON": "[]",
+            "Entities_JSON": "[]",
+            "Schema_JSONLD": "{}",
+            "LLM_SnippetPack_JSON": "{}",
+            "Citations_JSON": "[]",
+            "CitationsEnabled": false,
+            "MetaTitle": "The Future of SaaS Marketing in 2026",
+            "MetaDescription": "What's next for B2B SaaS?",
+            "CanonicalUrl": "https://techinsights.io/saas-future",
+            "Tags": [
+                "SaaS",
+                "Marketing",
+                "Leads"
+            ],
+            "Metadata_JSON": "{}"
+        },
+        {
+            "Title": "Embracing the Unexpected",
+            "Slug": "embracing-unexpected",
+            "Content": "Spontaneity is the spice of life...",
+            "Status": "Draft",
+            "PublishedDate": "2026-01-15T11:56:50.000Z",
+            "Blog": [
+                "Example Blog"
+            ],
+            "Author": [
+                "John Smith"
+            ],
+            "Voice_Profile_Override": [
+                "Persuasive"
+            ],
+            "PrimaryObjective": "Traffic",
+            "SecondaryObjective": "Distribution",
+            "PostIntentNote": "Viral potential.",
+            "Agency": [
+                "Acme Media"
+            ],
+            "Brief_Status": "Pending",
+            "Brief_Data_JSON": "{\"brief\":\"Spontaneity\"}",
+            "Brief_Feedback": "",
+            "ContractVersion": "v2.0",
+            "QA_Score_GEO_AEO": 90,
+            "QA_Report_JSON": "{\"score\":90}",
+            "GeneratorInput_JSON": "{}",
+            "GeneratorOutput_JSON": "{}",
+            "TLDR": "- Be spontaneous\n- Take risks\n- Live fully",
+            "FAQ_JSON": "[]",
+            "HowTo_JSON": "{}",
+            "Tables_JSON": "[]",
+            "Glossary_JSON": "[]",
+            "Entities_JSON": "[]",
+            "Schema_JSONLD": "{}",
+            "LLM_SnippetPack_JSON": "{}",
+            "Citations_JSON": "[]",
+            "CitationsEnabled": true,
+            "MetaTitle": "The Art of Spontaneity",
+            "MetaDescription": "How to embrace the unexpected.",
+            "CanonicalUrl": "https://example.com/spontaneity",
+            "Tags": [
+                "Life",
+                "Growth",
+                "Mindset"
+            ],
+            "Metadata_JSON": "{}"
+        }
+    ]
+}
