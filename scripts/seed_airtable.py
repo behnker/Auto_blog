@@ -57,6 +57,10 @@ def seed():
         author_names = blog.pop("Authors", [])
         blog_authors_map[blog["Name"]] = author_names
         
+        # Sanitize problematic Multi-Selects that might cause 422s if options don't exist
+        blog.pop("AnalyticsMetricSecondary", None)
+        blog.pop("SupportedLanguages", None)
+        
         bid = get_or_create("Blogs", "Name", blog["Name"], blog)
         blog_map[blog["Name"]] = bid
         

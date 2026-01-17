@@ -44,7 +44,32 @@ def generate_v1(blog_config, primary_obj, secondary, intent):
     )
     return PostOutputV1.parse_raw(msg.content[0].text)
 
-def generate_v2(blog_config, primary_obj, secondary, intent):
+def fetch_draft_queue(blog_config, limit=1):
+    """Fetches records with Status='Draft' to process."""
+    try:
+        airtable = get_airtable_client()
+        base_id = get_base_id(blog_config)
+        table = airtable.table(base_id, blog_config["airtable"]["table_name"])
+        # Fetch Drafts, oldest created first (FIFO) or sorted by priority if we had that field
+        records = table.all(formula="{Status}='Draft'", sort=["Created"], max_records=limit)
+        return records
+    except Exception as e:
+        print(f"Error fetching drafts: {e}")
+        return []
+
+def get_voice_instructions(blog_config, voice_id):
+    """Fetches tone instructions for a specific voice ID."""
+    try:
+        airtable = get_airtable_client()
+        base_id = get_base_id(blog_config)
+        table = airtable.table(base_id, "Voice_Profiles")
+        record = table.get(voice_id)
+        return record["fields"].get("Tone_Instructions", "")
+    except Exception as e:
+        print(f"Error fetching voice: {e}")
+        return ""
+
+def generate_v2(blog_config, primary_obj, secondary, intent, voice_instructions=""):
     """v2.0 Search-Optimised Generation"""
     print("--- Starting v2.0 Search-Optimised Generation ---")
     
@@ -57,8 +82,16 @@ def generate_v2(blog_config, primary_obj, secondary, intent):
         # Fallback to v1 prompt or default
         base_sys = "You are an expert SEO Content Writer specialised in GEO (Generative Engine Optimization)."
 
-    system_prompt = f"""{base_sys}
+    # Inject Voice Instructions if present
+    voice_section = ""
+    if voice_instructions:
+        voice_section = f"""
+    VOICE & TONE INSTRUCTIONS (CRITICAL):
+    {voice_instructions}
+    """
     
+    system_prompt = f"""{base_sys}
+    {voice_section}
     OBJECTIVES:
     - Primary: {primary_obj}
     - Secondary: {secondary}
@@ -140,7 +173,13 @@ def save_v2_to_airtable(blog_config, post_data: PostOutputV2, audit_in, audit_ou
         "QA_Report_JSON": json.dumps(qa_report)
     }
     
-    return table.create(record_data)
+    if audit_in.get("record_id"):
+        # Update existing Draft
+        print(f"Updating existing draft: {audit_in['record_id']}")
+        return table.update(audit_in['record_id'], record_data, typecast=True)
+    else:
+        # Create new
+        return table.create(record_data, typecast=True)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -156,27 +195,53 @@ def main():
     if not blog:
         sys.exit(1)
 
-    # Resolve Contract
-    # In real app, we fetch 'GenerationContractDefault' from Airtable record of the Blog
-    # For now, we mock or use flag, OR verify from blogs.yaml if provided
-    contract_version = "v1.1"
+    # Check for Drafts FIRST
+    drafts = fetch_draft_queue(blog, limit=1)
+    target_draft = None
+    voice_instr = ""
     
-    # Check if blogs.yaml has a default
-    if blog.get('generation_contract_default') == 'v2.0':
-        contract_version = "v2.0"
+    if drafts:
+        target_draft = drafts[0]
+        draft_fields = target_draft["fields"]
+        print(f"Found Priority Draft: {draft_fields.get('Title')} ({target_draft['id']})")
         
-    if args.force_v2: 
-        contract_version = "v2.0"
-    
+        # Override CLI args with Draft Context
+        # Treat Title as the main 'Objective' or Topic
+        contract_version = "v2.0" # Drafts default to v2 for now
+        
+        # Resolve Voice Override
+        voice_ids = draft_fields.get("Voice_Profile_Override", [])
+        if voice_ids:
+            voice_instr = get_voice_instructions(blog, voice_ids[0])
+            print(f"Applying Voice Override: {voice_ids[0]}")
+            
+    else:
+        print("No drafts found. Proceeding with standard generation loop.")
+        # Standard CLI Args logic
+        contract_version = "v1.1" # Default unless forced
+        if blog.get('generation_contract_default') == 'v2.0':
+            contract_version = "v2.0"
+        if args.force_v2: 
+            contract_version = "v2.0"
+
     print(f"Generating for {blog['name']} using Contract {contract_version}")
     
     primary = args.primary or "Authority"
+    if target_draft:
+        primary = target_draft["fields"].get("Title", primary)
     
     if contract_version == "v2.0":
         # Mock Input Payload for Audit
-        audit_in = {"blog": blog['id'], "primary": primary, "mode": "v2.0"}
+        audit_in = {
+            "blog": blog['id'], 
+            "primary": primary, 
+            "mode": "v2.0",
+            "record_id": target_draft['id'] if target_draft else None
+        }
         
-        post_data, audit_out = generate_v2(blog, primary, args.secondary, args.intent)
+        # Pass voice_instr to generation
+        post_data, audit_out = generate_v2(blog, primary, args.secondary, args.intent, voice_instructions=voice_instr)
+
         if post_data:
             if args.dry_run:
                 print("\n--- v2.0 DRY RUN OUTPUT ---")
@@ -187,12 +252,12 @@ def main():
                 print(f"Saved v2 Post: {rec['id']}")
     else:
         # Fallback to v1 logic (simplified here)
+        # Note: v1 refactor to support updating drafts skipped for brevity as we focus on v2
         post_data = generate_v1(blog, primary, args.secondary, args.intent)
         if args.dry_run:
              print("\n--- v1.1 DRY RUN OUTPUT ---")
              print(post_data.json(indent=2))
         else:
-             # Match existing v1 save logic (not implemented fully in this snippet, but placeholder)
              print("v1 Post Generated (Saving skipped in refactor for v2 focus)")
 
 if __name__ == "__main__":

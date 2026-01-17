@@ -17,8 +17,7 @@ endblock %}
             <div class="rowActions">
                 <a href="https://airtable.com/{{ blog.airtable.base_id_resolved }}" target="_blank" class="btn">Open
                     Airtable</a>
-                <button class="btn primary" onclick="alert('Not implemented in UI yet -> Use CLI/Curl')">+ New
-                    Post</button>
+                <button class="btn primary">+ New Post</button>
             </div>
         </div>
         <div class="cardBody">
@@ -107,5 +106,67 @@ endblock %}
             </table>
         </div>
     </div>
+    </div>
 </section>
+
+<!-- Create Post Modal -->
+<dialog id="create-post-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Create New Post (Draft)</h3>
+            <button class="btn-close" onclick="closeModal('create-post-modal')">×</button>
+        </div>
+        <form method="POST" action="/admin/blogs/{{ blog.id }}/posts">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="title">Post Title / Topic *</label>
+                    <input type="text" id="title" name="title" required placeholder="e.g. 5 Ways to Automate Your Blog">
+                    <small>This will be the main topic for generation.</small>
+                </div>
+                <div class="form-group">
+                    <label for="voice_id">Voice Override (Optional)</label>
+                    <select id="voice_id" name="voice_id">
+                        <option value="">-- Use Author Default --</option>
+                        {% for v in voices %}
+                        <option value="{{ v.id }}">{{ v.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="closeModal('create-post-modal')">Cancel</button>
+                <button type="submit" class="btn primary">Create Draft</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<script>
+    const modal = document.getElementById('create-post-modal');
+    // We target the button via its class
+    const openBtn = document.querySelector('.btn.primary');
+
+    if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            modal.showModal();
+        });
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).close();
+    }
+
+    // Close on click outside
+    modal.addEventListener('click', (e) => {
+        const dialogDimensions = modal.getBoundingClientRect();
+        if (
+            e.clientX < dialogDimensions.left ||
+            e.clientX > dialogDimensions.right ||
+            e.clientY < dialogDimensions.top ||
+            e.clientY > dialogDimensions.bottom
+        ) {
+            modal.close();
+        }
+    });
+</script>
 {% endblock %}

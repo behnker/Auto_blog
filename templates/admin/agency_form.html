@@ -1,0 +1,90 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ "Edit Agency" if agency else "New Agency" }} - Auto_Blog Admin{% endblock %}
+
+{% block content %}
+<section class="glass-panel">
+    <div class="panel-header">
+        <h1>{{ "Edit Agency" if agency else "Create New Agency" }}</h1>
+        <a href="/admin/agencies" class="btn">← Back to List</a>
+    </div>
+
+    <div class="panel-body">
+        <form method="POST" action="/admin/agencies/save" class="max-w-600">
+            <!-- Hidden ID field determines if we are Creating or Updating -->
+            {% if agency %}
+            <input type="hidden" name="agency_id" value="{{ agency.id }}">
+            {% endif %}
+
+            <div class="form-group">
+                <label for="name">Agency Name *</label>
+                <input type="text" id="name" name="name" required value="{{ agency.name if agency else '' }}"
+                    placeholder="e.g. Acme Corp">
+            </div>
+
+            <div class="form-group">
+                <label for="website">Website URL (Optional)</label>
+                <input type="url" id="website" name="website" value="{{ agency.website if agency else '' }}"
+                    placeholder="https://example.com">
+                <small>Used for context generation.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea id="notes" name="notes" rows="4"
+                    placeholder="Internal notes about this agency...">{{ agency.notes if agency else '' }}</textarea>
+            </div>
+
+            <div class="form-actions mt-4">
+                <a href="/admin/agencies" class="btn">Cancel</a>
+                <button type="submit" class="btn primary">Save Agency</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Dangerous Zone for Edit Mode -->
+{% if agency %}
+<section class="glass-panel mt-4 border-red">
+    <div class="panel-header">
+        <h3 class="text-red">Danger Zone</h3>
+    </div>
+    <div class="panel-body">
+        <p>Deleting an agency will unlink all associated Authors and Blogs. This action cannot be undone.</p>
+        <form method="POST" action="/admin/agencies/{{ agency.id }}/delete"
+            onsubmit="return confirm('Are you absolutely sure you want to delete this agency?');">
+            <button type="submit" class="btn danger">Delete Agency</button>
+        </form>
+    </div>
+</section>
+{% endif %}
+
+<style>
+    .max-w-600 {
+        max-width: 600px;
+    }
+
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+
+    .text-red {
+        color: #ff6b6b;
+    }
+
+    .border-red {
+        border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+
+    .btn.danger {
+        background: rgba(255, 107, 107, 0.2);
+        color: #ff6b6b;
+        border: 1px solid #ff6b6b;
+    }
+
+    .btn.danger:hover {
+        background: #ff6b6b;
+        color: white;
+    }
+</style>
+{% endblock %}

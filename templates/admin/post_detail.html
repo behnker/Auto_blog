@@ -1,0 +1,159 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Post - {{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div class="titleBlock">
+        <div class="crumbs">
+            <a href="/admin/dashboard">Dashboard</a> /
+            <a href="/admin/blogs/{{ blog.id }}">{{ blog.name }}</a> /
+            Edit Post
+        </div>
+        <h2>{{ post.title }}</h2>
+        <div class="mini mt-2">
+            <span class="chip {{ 'good' if post.status == 'Published' else 'warn' }}">
+                <div class="dot"></div> {{ post.status }}
+            </span>
+            <span class="text-muted text-sm">{{ post.id }}</span>
+        </div>
+    </div>
+    <div class="actions">
+        {% if post.slug %}
+        <a href="https://{{ blog.domain }}/{{ post.slug }}" target="_blank" class="btn">View Live ↗</a>
+        {% endif %}
+        <button type="submit" form="editForm" class="btn primary">Save Changes</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="split">
+        <!-- Main Editor -->
+        <div class="panel">
+            <form id="editForm" method="POST" action="/admin/posts/save">
+                <input type="hidden" name="blog_id" value="{{ blog.id }}">
+                <input type="hidden" name="post_id" value="{{ post.id }}">
+
+                <div class="form-group mb-4">
+                    <label>Title</label>
+                    <input type="text" name="title" value="{{ post.title }}" class="full-width">
+                </div>
+
+                <div class="form-group">
+                    <label>Content (Markdown)</label>
+                    <textarea name="content" class="editor-textarea">{{ post.content }}</textarea>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar / AI Tools -->
+        <div class="grid cols-1" style="align-content: start;">
+            <div class="panel">
+                <h4>✨ AI Revision</h4>
+                <p>Ask the AI to rewrite sections or improve tone.</p>
+                <button onclick="document.getElementById('revision-modal').showModal()" class="btn full-width">Suggest
+                    Changes</button>
+
+                {% if post.feedback %}
+                <div class="mt-4 p-3 bg-dark rounded">
+                    <strong class="text-xs text-muted">LAST REQUEST:</strong>
+                    <p class="text-sm mt-1">"{{ post.feedback }}"</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="panel">
+                <h4>Metadata</h4>
+                <div class="field mb-2">
+                    <label>Slug</label>
+                    <input type="text" form="editForm" name="slug" value="{{ post.slug }}">
+                </div>
+                <div class="field">
+                    <label>SEO Image URL</label>
+                    <input type="text" form="editForm" name="image" value="{{ post.image }}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Revision Modal -->
+<dialog id="revision-modal" class="modal">
+    <div class="modal-content">
+        <div class="modalTop">
+            <h3>Request AI Revision</h3>
+            <button class="btn-close" onclick="document.getElementById('revision-modal').close()">×</button>
+        </div>
+        <form method="POST" action="/admin/posts/revise">
+            <input type="hidden" name="blog_id" value="{{ blog.id }}">
+            <input type="hidden" name="post_id" value="{{ post.id }}">
+
+            <div class="modalBody">
+                <p>This will set the status to <strong>RevisionRequested</strong> and the Agent will pick it up.</p>
+                <div class="field">
+                    <label>Instructions</label>
+                    <textarea name="feedback" rows="4"
+                        placeholder="e.g. Make the intro more punchy, and add a section about pricing."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer p-4 flex justify-end gap-2">
+                <button type="button" class="btn"
+                    onclick="document.getElementById('revision-modal').close()">Cancel</button>
+                <button type="submit" class="btn primary">Submit Request</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<style>
+    .full-width {
+        width: 100%;
+    }
+
+    .editor-textarea {
+        width: 100%;
+        min-height: 500px;
+        font-family: monospace;
+        line-height: 1.5;
+        font-size: 14px;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--stroke);
+        border-radius: 8px;
+        color: var(--text);
+        resize: vertical;
+    }
+
+    .text-sm {
+        font-size: 13px;
+    }
+
+    .text-xs {
+        font-size: 11px;
+    }
+
+    .text-muted {
+        color: var(--muted);
+    }
+
+    .mt-4 {
+        margin-top: 1rem;
+    }
+
+    .mb-4 {
+        margin-bottom: 1rem;
+    }
+
+    .bg-dark {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .rounded {
+        border-radius: 6px;
+    }
+
+    .p-3 {
+        padding: 0.75rem;
+    }
+</style>
+{% endblock %}

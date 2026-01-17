@@ -1,111 +1,53 @@
 {% extends "admin/base.html" %}
 
 {% block content %}
-<div class="header-actions">
-    <h1>All Agencies & Blogs</h1>
-    <a href="/admin/logout" class="btn btn-outline" style="border: 1px solid var(--border-color);">Logout</a>
-</div>
-
-<!-- Metrics Row -->
-<div class="metrics-grid">
-    <div class="card metric-card">
-        <h3>Total Blogs</h3>
-        <p class="metric-value">{{ metrics.blogs }}</p>
+<div class="topbar">
+    <div class="titleBlock">
+        <h2>Dashboard</h2>
+        <p>Overview of all managed blogs and agencies</p>
     </div>
-    <div class="card metric-card">
-        <h3>Queue Status</h3>
-        <p class="metric-value" style="font-size: 1rem; color: #4ade80;">Active</p>
+    <div class="actions">
+        <a href="/admin/logout" class="btn">Logout</a>
     </div>
 </div>
 
-<h2 class="section-title">Blog Catalog</h2>
-<div class="blog-grid">
-    {% for blog in blogs %}
-    <div class="card blog-card">
-        <div class="card-header">
-            <h3>{{ blog.name }}</h3>
-            <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8;">{{
-                blog.generation_contract_default or 'v1.1' }}</span>
+<div class="container">
+    <!-- Metrics -->
+    <div class="grid cols-2">
+        <div class="stat">
+            <div class="k">Total Manifests</div>
+            <div class="v">{{ metrics.drafts + metrics.in_review + metrics.published_7d }}</div>
+            <div class="s">Across all blogs</div>
         </div>
-        <p class="subtext">{{ blog.domain }}</p>
-
-        <div class="card-stats">
-            <div>
-                <strong>Objective</strong><br>
-                {{ blog.primary_objective }}
-            </div>
-            <div style="text-align: right;">
-                <strong>Base ID</strong><br>
-                <span title="{{ blog.airtable.base_id_env }}">{{ blog.airtable.base_id_env }}</span>
-            </div>
-        </div>
-
-        <div class="card-actions">
-            <a href="/admin/blogs/{{ blog.id }}" class="btn btn-primary" style="width: 100%; text-align: center;">Manage
-                Content &rarr;</a>
+        <div class="stat">
+            <div class="k">System Status</div>
+            <div class="v" style="color: var(--accent2);">Active</div>
+            <div class="s">Queue Processing</div>
         </div>
     </div>
-    {% endfor %}
+
+    <!-- Blog Catalog -->
+    <div class="panel">
+        <div class="panel-header">
+            <h4>Blog Catalog</h4>
+        </div>
+        <div class="tiles">
+            {% for blog in blogs %}
+            <a href="/admin/blogs/{{ blog.id }}" class="tile">
+                <div class="img"></div>
+                <div class="shade"></div>
+                <div class="inner">
+                    <div class="top">
+                        <div class="chip">{{ blog.generation_contract_default or 'v1.1' }}</div>
+                    </div>
+                    <div>
+                        <h4>{{ blog.name }}</h4>
+                        <div class="domain">{{ blog.domain }}</div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
 </div>
-
-<style>
-    .header-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-
-    .metric-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0.5rem 0 0 0;
-        background: linear-gradient(90deg, #fff, #94a3b8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .blog-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 2rem;
-    }
-
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        margin-bottom: 0.5rem;
-    }
-
-    .card-stats {
-        display: flex;
-        justify-content: space-between;
-        margin: 1.5rem 0;
-        padding: 1rem 0;
-        border-top: 1px solid var(--border-color);
-        border-bottom: 1px solid var(--border-color);
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-    }
-
-    .btn-primary {
-        background: var(--accent-color);
-        color: #0f172a;
-        border: none;
-        transition: all 0.2s;
-    }
-
-    .btn-primary:hover {
-        background: #7dd3fc;
-        box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-    }
-</style>
 {% endblock %}

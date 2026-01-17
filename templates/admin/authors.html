@@ -33,7 +33,7 @@
                         <td style="color:var(--muted);">{{ author.bio }}</td>
                         <td><span class="chip">{{ author.voice }}</span></td>
                         <td style="text-align:right;">
-                            <button class="btn">Edit</button>
+                            <a href="/admin/authors/{{ author.id }}" class="btn">Manage</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -42,4 +42,67 @@
         </div>
     </div>
 </section>
+
+<!-- Create Author Modal -->
+<dialog id="create-author-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Create New Author</h3>
+            <button class="btn-close" onclick="closeModal('create-author-modal')">×</button>
+        </div>
+        <form method="POST" action="/admin/authors">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="name">Author Name *</label>
+                    <input type="text" id="name" name="name" required placeholder="e.g. John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" name="bio" rows="3" placeholder="Short biography..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="voice_id">Default Voice</label>
+                    <select id="voice_id" name="voice_id">
+                        <option value="">-- Select a Voice --</option>
+                        {% for v in voices %}
+                        <option value="{{ v.id }}">{{ v.fields.Name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="closeModal('create-author-modal')">Cancel</button>
+                <button type="submit" class="btn primary">Create Author</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<script>
+    const modal = document.getElementById('create-author-modal');
+    const openBtn = document.querySelector('.btn.primary'); // The "+ New Author" button
+
+    if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            modal.showModal();
+        });
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).close();
+    }
+
+    // Close on click outside
+    modal.addEventListener('click', (e) => {
+        const dialogDimensions = modal.getBoundingClientRect();
+        if (
+            e.clientX < dialogDimensions.left ||
+            e.clientX > dialogDimensions.right ||
+            e.clientY < dialogDimensions.top ||
+            e.clientY > dialogDimensions.bottom
+        ) {
+            modal.close();
+        }
+    });
+</script>
 {% endblock %}

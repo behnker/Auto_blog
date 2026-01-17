@@ -83,3 +83,11 @@ This document serves as the "Source of Truth" for the Airtable Schema (covering 
 *   **Sample_Text** (Long text): `Excerpt for few-shot prompting`
 *   **Authors** (Linked record): `Authors using this voice`
 *   **Posts** (Linked record): `Posts using this voice`
+
+## Table 5: Agencies [New Phase 4]
+**Purpose**: Multi-tenant management.
+
+*   **Name** (Single line text)
+*   **Website** (URL): `Agency homepage` [Added Phase 4]
+*   **Notes** (Long text)
+*   **Blogs** (Linked Record -> Blogs [Phase 5 Config])
