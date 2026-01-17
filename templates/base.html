@@ -4,86 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ blog.name }}</title>
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #333333;
-            --accent-color: #0070f3;
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max_width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            padding: 20px 0;
-            border-bottom: 1px solid #eaeaea;
-            margin-bottom: 40px;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
-
-        header a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        footer {
-            margin-top: 60px;
-            padding: 20px 0;
-            border-top: 1px solid #eaeaea;
-            text-align: center;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        article {
-            margin-bottom: 40px;
-        }
-
-        h1,
-        h2,
-        h3 {
-            line-height: 1.2;
-        }
-
-        a {
-            color: var(--accent-color);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .post-meta {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 1rem;
-        }
-    </style>
+    <title>{% block title %}{{ blog.name }}{% endblock %}</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700&display=swap"
+        rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body>
     <div class="container">
         <header>
-            <h1><a href="/">{{ blog.name }}</a></h1>
+            <a href="/" class="brand">{{ blog.name }}</a>
         </header>
 
         <main>
@@ -91,7 +26,7 @@
         </main>
 
         <footer>
-            <p>&copy; {{ now.year }} {{ blog.name }}</p>
+            &copy; {{ now.year }} {{ blog.name }}. All rights reserved.
         </footer>
     </div>
 </body>
