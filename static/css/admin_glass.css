@@ -69,6 +69,43 @@ textarea {
     font-family: inherit;
 }
 
+/* Global Input Styles */
+input,
+select,
+textarea {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 10px 12px;
+    border-radius: 12px;
+    outline: none;
+    width: 100%;
+    /* Default to full width for better mobile */
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+}
+
+/* Alias .form-group to .field for compatibility */
+.form-group,
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.form-group label,
+.field label {
+    color: var(--muted2);
+    font-size: 13px;
+    font-weight: 500;
+}
+
 .app {
     display: grid;
     grid-template-columns: 280px 1fr;
