@@ -3,14 +3,11 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from typing import Optional
 import os
+from execution.utils import load_blogs_config, get_airtable_client
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-# Quick & Dirty Session Auth (MVP)
-# In production, use a proper session library (e.g. starsessions)
-# For now, we use a simple signed cookie or just a plain cookie with a "secret" check.
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin") 
-
 templates = Jinja2Templates(directory="templates")
 
 def is_authenticated(request: Request) -> bool:
@@ -39,14 +36,44 @@ async def dashboard(request: Request):
     if not is_authenticated(request):
         return RedirectResponse(url="/admin/login")
     
-    # Placeholder: Fetch metrics from Airtable later
+    # Fetch Blogs from Config
+    blogs = load_blogs_config()
+    
+    # Fetch Stats (Simulated or Lightweight)
     metrics = {
-        "agencies": 0,
-        "blogs": 0,
-        "posts": 0
+        "agencies": 1, 
+        "blogs": len(blogs),
+        "posts": "..." 
     }
     
     return templates.TemplateResponse("admin/dashboard.html", {
         "request": request,
-        "metrics": metrics
+        "metrics": metrics,
+        "blogs": blogs
+    })
+
+@router.get("/blogs/{blog_id}", response_class=HTMLResponse)
+async def blog_detail(request: Request, blog_id: str):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login")
+        
+    blogs = load_blogs_config()
+    blog = next((b for b in blogs if b["id"] == blog_id), None)
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog not found")
+
+    # Fetch Posts from Airtable
+    posts = []
+    try:
+        api = get_airtable_client()
+        table = api.table(blog["airtable"]["base_id"], blog["airtable"]["table_name"])
+        # Fetch generic view
+        posts = table.all(sort=["-PublishedDate"])
+    except Exception as e:
+        print(f"Error fetching posts: {e}")
+
+    return templates.TemplateResponse("admin/blog_detail.html", {
+        "request": request,
+        "blog": blog,
+        "posts": posts
     })
