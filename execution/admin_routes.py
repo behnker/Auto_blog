@@ -234,9 +234,16 @@ async def save_agency(request: Request,
         return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
         
     try:
-        print(f"DEBUG: Saving Agency. Name='{name}', Website='{website}'")
+        # LOGGING START
+        with open("debug_error.log", "a") as f:
+            f.write(f"DEBUG: Entering save_agency. Name={name}\n")
+            
         api = get_airtable_client()
         base_id = os.environ.get("AIRTABLE_BASE_ID")
+        
+        with open("debug_error.log", "a") as f:
+            f.write(f"DEBUG: Base ID found: {base_id is not None}\n")
+
         if base_id:
             table = api.table(base_id, "Agencies")
             fields = {"Name": name}
@@ -247,13 +254,26 @@ async def save_agency(request: Request,
             
             if agency_id:
                 # Update
+                with open("debug_error.log", "a") as f:
+                    f.write(f"DEBUG: Updating agency {agency_id}\n")
                 table.update(agency_id, fields, typecast=True)
             else:
                 # Create
+                with open("debug_error.log", "a") as f:
+                    f.write(f"DEBUG: Creating new agency\n")
                 table.create(fields, typecast=True)
+                with open("debug_error.log", "a") as f:
+                    f.write(f"DEBUG: Create complete\n")
+        else:
+             with open("debug_error.log", "a") as f:
+                f.write(f"ERROR: No Base ID found in env\n")
+                
+    except Exception as e:
                 
     except Exception as e:
         print(f"Error saving agency: {e}")
+        with open("debug_error.log", "a") as f:
+            f.write(f"Error saving agency: {e}\n")
         
     return RedirectResponse(url="/admin/agencies", status_code=status.HTTP_303_SEE_OTHER)
 
