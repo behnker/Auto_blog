@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from typing import Optional
 import os
 from datetime import datetime, timedelta
-from execution.utils import load_blogs_config, get_airtable_client
+from execution.utils import load_blogs_config, get_airtable_client, get_base_id
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -512,9 +512,9 @@ async def blog_detail(request: Request, blog_id: str):
 
     posts = []
     try:
+    try:
         api = get_airtable_client()
-        env_var_name = blog["airtable"]["base_id_env"]
-        base_id = os.environ.get(env_var_name)
+        base_id = get_base_id(blog)
         if base_id:
              table = api.table(base_id, blog["airtable"]["table_name"])
              # Fetch generic view
@@ -523,7 +523,10 @@ async def blog_detail(request: Request, blog_id: str):
         print(f"Error fetching posts: {e}")
 
     blog_view = blog.copy()
-    blog_view['airtable']['base_id_resolved'] = os.environ.get(blog["airtable"]["base_id_env"], "Not Set")
+    try:
+        blog_view['airtable']['base_id_resolved'] = get_base_id(blog)
+    except:
+        blog_view['airtable']['base_id_resolved'] = "Error Resolving ID"
     
     # Fetch voices for the modal dropdown
     voices = []
