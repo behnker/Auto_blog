@@ -1,0 +1,90 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ "Edit Voice" if voice else "New Voice" }} - Auto_Blog Admin{% endblock %}
+
+{% block content %}
+<section class="glass-panel">
+    <div class="panel-header">
+        <h1>{{ "Edit Voice Profile" if voice else "Create New Voice Profile" }}</h1>
+        <a href="/admin/voices" class="btn">← Back to List</a>
+    </div>
+
+    <div class="panel-body">
+        <form method="POST" action="/admin/voices/save" class="max-w-600">
+            <!-- Hidden ID field determines if we are Creating or Updating -->
+            {% if voice %}
+            <input type="hidden" name="voice_id" value="{{ voice.id }}">
+            {% endif %}
+
+            <div class="field">
+                <label for="name">Voice Name *</label>
+                <input type="text" id="name" name="name" required value="{{ voice.name if voice else '' }}"
+                    placeholder="e.g. Witty & Technical">
+            </div>
+
+            <div class="field">
+                <label for="desc">Description</label>
+                <textarea id="desc" name="desc" rows="2"
+                    placeholder="Internal notes about when to use this voice...">{{ voice.desc if voice else '' }}</textarea>
+            </div>
+
+            <div class="field">
+                <label for="tone">Tone Instructions</label>
+                <textarea id="tone" name="tone" rows="6"
+                    placeholder="Adjectives and detailed framing instructions (e.g. 'Use short sentences. Avoid jargon.')...">{{ voice.tone if voice else '' }}</textarea>
+                <small>The System Prompt will incorporate these instructions.</small>
+            </div>
+
+            <div class="form-actions mt-4">
+                <a href="/admin/voices" class="btn">Cancel</a>
+                <button type="submit" class="btn primary">Save Voice Profile</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Dangerous Zone for Edit Mode -->
+{% if voice %}
+<section class="glass-panel mt-4 border-red">
+    <div class="panel-header">
+        <h3 class="text-red">Danger Zone</h3>
+    </div>
+    <div class="panel-body">
+        <p>Deleting a voice profile will remove it from all Authors using it. It will not delete posts.</p>
+        <form method="POST" action="/admin/voices/{{ voice.id }}/delete"
+            onsubmit="return confirm('Are you absolutely sure you want to delete this voice profile?');">
+            <button type="submit" class="btn danger">Delete Voice Profile</button>
+        </form>
+    </div>
+</section>
+{% endif %}
+
+<style>
+    .max-w-600 {
+        max-width: 600px;
+    }
+
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+
+    .text-red {
+        color: #ff6b6b;
+    }
+
+    .border-red {
+        border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+
+    .btn.danger {
+        background: rgba(255, 107, 107, 0.2);
+        color: #ff6b6b;
+        border: 1px solid #ff6b6b;
+    }
+
+    .btn.danger:hover {
+        background: #ff6b6b;
+        color: white;
+    }
+</style>
+{% endblock %}
