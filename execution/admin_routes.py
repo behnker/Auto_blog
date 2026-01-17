@@ -479,26 +479,62 @@ async def author_detail(request: Request, author_id: str):
     try:
         api = get_airtable_client()
         base_id = os.environ.get("AIRTABLE_BASE_ID")
-        if base_id:
             table = api.table(base_id, "Author_Profile")
             record = table.get(author_id)
             f = record["fields"]
+            
+            # Fetch Voices for Dropdown
+            voices_table = api.table(base_id, "Voice_Profiles")
+            voices_records = voices_table.all()
+            voices = [{"id": v["id"], "name": v["fields"].get("Name", "Unnamed")} for v in voices_records]
+
             author = {
                 "id": record["id"],
                 "name": f.get("Author_Name", "Unnamed"),
                 "bio": f.get("Author_Bio", ""),
-                # Fetching voice/agency names would require extra lookups or passing them if we wanted to be fancy, 
-                # but for now we'll show raw IDs or just the fields we have.
+                "voice_ids": f.get("Voice_Profile", []) # List of linked IDs
             }
-
     except Exception as e:
         print(f"Error fetching author detail: {e}")
         raise HTTPException(status_code=404, detail="Author not found")
         
     return templates.TemplateResponse("admin/author_detail.html", {
         "request": request, 
-        "author": author
+        "author": author,
+        "voices": voices
     })
+
+@router.post("/authors/save", response_class=RedirectResponse)
+async def save_author_update(request: Request, 
+                             author_id: str = Form(...),
+                             name: str = Form(...),
+                             bio: Optional[str] = Form(None),
+                             voice_id: Optional[str] = Form(None)):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
+        
+    try:
+        api = get_airtable_client()
+        base_id = get_base_id({"airtable": {"base_id_direct": os.environ.get("AIRTABLE_BASE_ID"), "base_id_env": "AIRTABLE_BASE_ID"}}) # Hacky context
+        # Better: just use os.environ since authors are global/shared base usually
+        base_id = os.environ.get("AIRTABLE_BASE_ID")
+        
+        if base_id:
+            table = api.table(base_id, "Author_Profile")
+            fields = {
+                "Author_Name": name,
+                "Author_Bio": bio or ""
+            }
+            if voice_id:
+                fields["Voice_Profile"] = [voice_id]
+            else:
+                 fields["Voice_Profile"] = [] # Clear if None selected
+                 
+            table.update(author_id, fields, typecast=True)
+    except Exception as e:
+        print(f"Error updating author: {e}")
+        
+    return RedirectResponse(url=f"/admin/authors/{author_id}", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.get("/blogs/{blog_id}", response_class=HTMLResponse)
 async def blog_detail(request: Request, blog_id: str):

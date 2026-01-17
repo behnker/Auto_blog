@@ -13,18 +13,40 @@
                 <h3>Profile</h3>
             </div>
             <div class="cardBody">
-                <form>
-                    <div class="form-group">
+                <form method="POST" action="/admin/authors/save">
+                    <input type="hidden" name="author_id" value="{{ author.id }}">
+
+                    <div class="field">
                         <label>Name</label>
-                        <input type="text" value="{{ author.name }}" readonly disabled>
+                        <input type="text" name="name" value="{{ author.name }}" required>
                     </div>
-                    <div class="form-group">
+
+                    <div class="field">
+                        <label>Assigned Voice</label>
+                        <select name="voice_id">
+                            <option value="">-- No Voice Assigned --</option>
+                            {% for v in voices %}
+                            <option value="{{ v.id }}" {% if author.voice_ids and v.id in author.voice_ids %}selected{%
+                                endif %}>
+                                {{ v.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small style="color:var(--muted);">Determines the writing style for this author.</small>
+                    </div>
+
+                    <div class="field">
                         <label>Bio</label>
-                        <textarea rows="4" readonly disabled>{{ author.bio }}</textarea>
+                        <textarea name="bio" rows="4">{{ author.bio }}</textarea>
                     </div>
-                    <div class="form-group">
+
+                    <div class="field">
                         <label>Airtable ID</label>
-                        <input type="text" value="{{ author.id }}" readonly disabled class="mono">
+                        <input type="text" value="{{ author.id }}" readonly disabled class="mono" style="opacity:0.5;">
+                    </div>
+
+                    <div style="margin-top:20px; text-align:right;">
+                        <button type="submit" class="btn primary">Save Changes</button>
                     </div>
                 </form>
             </div>
