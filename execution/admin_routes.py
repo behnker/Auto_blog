@@ -172,17 +172,57 @@ async def agencies_list(request: Request):
         api = get_airtable_client()
         base_id = os.environ.get("AIRTABLE_BASE_ID")
         if base_id:
+            # Fetch Agencies
             table = api.table(base_id, "Agencies")
             records = table.all()
+            
+            # Fetch All Posts for Metrics (Lightweight)
+            # Optimization: In production, rely on Rollup fields in Airtable.
+            # For MVP/Phase 5, we fetch to ensure accuracy "autonomously".
+            posts_table = api.table(base_id, "Posts")
+            all_posts = posts_table.all(fields=["Blog", "PublishedDate", "QA_Score_GEO_AEO"])
+            
+            from datetime import datetime, timedelta, timezone
+            now = datetime.now(timezone.utc)
+            
             for r in records:
                 f = r["fields"]
+                linked_blog_ids = f.get("Blogs", [])
+                
+                # Calculate Metrics
+                p_count = 0
+                qa_sum = 0
+                qa_count = 0
+                
+                for p in all_posts:
+                     p_blog_ids = p["fields"].get("Blog", [])
+                     # Check if post belongs to any blog of this agency
+                     if any(bid in linked_blog_ids for bid in p_blog_ids):
+                         # Check 7d
+                         pdate_str = p["fields"].get("PublishedDate")
+                         if pdate_str:
+                             try:
+                                 pdate = datetime.fromisoformat(pdate_str.replace("Z", "+00:00"))
+                                 if (now - pdate).days <= 7:
+                                     p_count += 1
+                             except ValueError:
+                                 pass
+                         
+                         # Check QA
+                         qa = p["fields"].get("QA_Score_GEO_AEO")
+                         if isinstance(qa, (int, float)):
+                             qa_sum += qa
+                             qa_count += 1
+                
+                avg_qa = int(qa_sum / qa_count) if qa_count > 0 else 0
+
                 agencies.append({
                     "id": r["id"],
                     "name": f.get("Name", "Unnamed"),
-                    "website": f.get("Website", ""), # Added field
-                    "blogs_count": 0, # TODO: Phase 5 - Implement Rollup in Airtable
-                    "posts_7d": 0,    # TODO: Phase 5
-                    "avg_qa": 0       # TODO: Phase 5
+                    "website": f.get("Website", ""),
+                    "blogs_count": len(linked_blog_ids),
+                    "posts_7d": p_count,
+                    "avg_qa": avg_qa
                 })
     except Exception as e:
         print(f"Error fetching agencies: {e}")
