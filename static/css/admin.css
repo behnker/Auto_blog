@@ -1,0 +1,74 @@
+:root {
+    --bg-color: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-color: #38bdf8;
+    --border-color: rgba(148, 163, 184, 0.1);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    min-height: 100vh;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background: rgba(15, 23, 42, 0.9);
+    border-right: 1px solid var(--border-color);
+    padding: 2rem;
+}
+
+.content {
+    flex: 1;
+    padding: 2rem;
+}
+
+.card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn {
+    background: var(--accent-color);
+    color: #000;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.status-Published {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+}
+
+.status-Draft {
+    background: rgba(148, 163, 184, 0.2);
+    color: #cbd5e1;
+}
+
+.status-NeedsReview {
+    background: rgba(234, 179, 8, 0.2);
+    color: #facc15;
+}

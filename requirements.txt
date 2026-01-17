@@ -7,3 +7,4 @@ anthropic
 pyairtable
 python-dotenv
 pyyaml
+pydantic>=2.0

@@ -5,7 +5,11 @@
 <article>
     <h2><a href="/post/{{ post.fields.Slug }}">{{ post.fields.Title }}</a></h2>
     <div class="post-meta">{{ post.fields.PublishedDate }}</div>
-    <p>{{ post.fields.Content[:200] }}...</p>
+    <p>
+        {{ post.fields.Content[:200] }}...
+        <br>
+        <a href="/post/{{ post.fields.Slug }}" style="color: blue; text-decoration: underline;">Read more &rarr;</a>
+    </p>
 </article>
 {% else %}
 <p>No posts found.</p>

@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 from datetime import datetime
 from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
@@ -7,7 +8,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from execution.utils import get_blog_by_domain, get_blog_config, get_airtable_client, get_base_id
 
+from execution.models import BlogConfig
+from execution.admin_routes import router as admin_router
+
 app = FastAPI()
+app.include_router(admin_router)
 
 # Setup Templates
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -99,7 +104,79 @@ async def trigger_generation(request: Request, background_tasks: BackgroundTasks
     return {"status": "queued", "blog": blog["name"]}
 
 def run_generation_script(blog_id: str):
-    """Helper to run the CLI script."""
-    print(f"Starting background generation for {blog_id}")
-    script_path = os.path.join(os.path.dirname(__file__), "generate_post.py")
-    subprocess.run(["python", script_path, "--blog-id", blog_id])
+    """Executes the generate_post.py script as a subprocess."""
+    print(f"Triggering generation for {blog_id}")
+    try:
+        # Check if blog has v2 default
+        blog = get_blog_config(blog_id)
+        # Use -m to ensure package imports work correctly
+        cmd = [sys.executable, "-m", "execution.generate_post", "--blog-id", blog_id]
+        
+        if blog and blog.get("generation_contract_default") == "v2.0":
+             cmd.append("--force-v2")
+             
+        subprocess.run(cmd, check=True)
+    except Exception as e:
+        print(f"Generation failed: {e}")
+
+@app.get("/sitemap.xml", response_class=HTMLResponse)
+async def sitemap(request: Request):
+    """Generates a dynamic sitemap for the current blog."""
+    blog = get_current_blog(request)
+    try:
+        airtable = get_airtable_client()
+        base_id = get_base_id(blog)
+        table = airtable.table(base_id, blog["airtable"]["table_name"])
+        posts = table.all(sort=["-PublishedDate"], formula="{Status}='Published'")
+    except:
+        posts = []
+
+    domain = f"https://{blog['domain']}"
+    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml_content += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    # Home
+    xml_content += f"  <url><loc>{domain}/</loc><changefreq>daily</changefreq></url>\n"
+    
+    # Posts
+    for post in posts:
+        slug = post.get('fields', {}).get('Slug')
+        if slug:
+            date = post.get('fields', {}).get('PublishedDate', datetime.now().strftime("%Y-%m-%d"))
+            xml_content += f"  <url><loc>{domain}/post/{slug}</loc><lastmod>{date}</lastmod></url>\n"
+            
+    xml_content += "</urlset>"
+    return HTMLResponse(content=xml_content, media_type="application/xml")
+
+@app.get("/rss.xml", response_class=HTMLResponse)
+async def rss(request: Request):
+    """Generates an RSS feed for the current blog."""
+    blog = get_current_blog(request)
+    try:
+        airtable = get_airtable_client()
+        base_id = get_base_id(blog)
+        table = airtable.table(base_id, blog["airtable"]["table_name"])
+        posts = table.all(sort=["-PublishedDate"], formula="{Status}='Published'")
+    except:
+        posts = []
+
+    domain = f"https://{blog['domain']}"
+    rss_content = '<?xml version="1.0" encoding="UTF-8" ?>\n'
+    rss_content += '<rss version="2.0">\n'
+    rss_content += '  <channel>\n'
+    rss_content += f"    <title>{blog['name']}</title>\n"
+    rss_content += f"    <link>{domain}</link>\n"
+    rss_content += f"    <description>Latest posts from {blog['name']}</description>\n"
+    
+    for post in posts:
+        fields = post.get('fields', {})
+        rss_content += "    <item>\n"
+        rss_content += f"      <title>{fields.get('Title', 'Untitled')}</title>\n"
+        rss_content += f"      <link>{domain}/post/{fields.get('Slug', '')}</link>\n"
+        rss_content += f"      <description>{fields.get('MetaDescription', '')}</description>\n"
+        rss_content += f"      <pubDate>{fields.get('PublishedDate', '')}</pubDate>\n"
+        rss_content += "    </item>\n"
+        
+    rss_content += "  </channel>\n"
+    rss_content += "</rss>"
+    return HTMLResponse(content=rss_content, media_type="application/xml")
