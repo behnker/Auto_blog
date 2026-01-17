@@ -37,6 +37,10 @@ def get_current_blog(request: Request):
         
     raise HTTPException(status_code=404, detail="Blog not found")
 
+@app.get("/healthz")
+async def health_check():
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     blog = get_current_blog(request)
