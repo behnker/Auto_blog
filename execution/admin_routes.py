@@ -511,7 +511,7 @@ async def blog_detail(request: Request, blog_id: str):
         raise HTTPException(status_code=404, detail="Blog not found")
 
     posts = []
-    try:
+    posts = []
     try:
         api = get_airtable_client()
         base_id = get_base_id(blog)
