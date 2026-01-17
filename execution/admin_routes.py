@@ -269,8 +269,6 @@ async def save_agency(request: Request,
                 f.write(f"ERROR: No Base ID found in env\n")
                 
     except Exception as e:
-                
-    except Exception as e:
         print(f"Error saving agency: {e}")
         with open("debug_error.log", "a") as f:
             f.write(f"Error saving agency: {e}\n")
