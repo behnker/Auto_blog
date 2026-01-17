@@ -381,8 +381,43 @@ async def voices_list(request: Request):
 
     return templates.TemplateResponse("admin/voices.html", {"request": request, "voices": voices})
 
-@router.post("/voices", response_class=RedirectResponse)
-async def create_voice(request: Request, name: str = Form(...), desc: Optional[str] = Form(None), tone: Optional[str] = Form(None)):
+@router.get("/voices/new", response_class=HTMLResponse)
+async def new_voice(request: Request):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login")
+    return templates.TemplateResponse("admin/voice_form.html", {"request": request, "voice": None})
+
+@router.get("/voices/{voice_id}", response_class=HTMLResponse)
+async def voice_detail(request: Request, voice_id: str):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login")
+        
+    voice = None
+    try:
+        api = get_airtable_client()
+        base_id = os.environ.get("AIRTABLE_BASE_ID")
+        if base_id:
+            table = api.table(base_id, "Voice_Profiles")
+            record = table.get(voice_id)
+            f = record["fields"]
+            voice = {
+                "id": record["id"],
+                "name": f.get("Name", "Unnamed"),
+                "desc": f.get("Description", ""),
+                "tone": f.get("Tone_Instructions", "")
+            }
+    except Exception as e:
+        print(f"Error fetching voice: {e}")
+        raise HTTPException(status_code=404, detail="Voice not found")
+        
+    return templates.TemplateResponse("admin/voice_form.html", {"request": request, "voice": voice})
+
+@router.post("/voices/save", response_class=RedirectResponse)
+async def save_voice(request: Request, 
+                     name: str = Form(...), 
+                     desc: Optional[str] = Form(None), 
+                     tone: Optional[str] = Form(None),
+                     voice_id: Optional[str] = Form(None)):
     if not is_authenticated(request):
         return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
         
@@ -391,15 +426,39 @@ async def create_voice(request: Request, name: str = Form(...), desc: Optional[s
         base_id = os.environ.get("AIRTABLE_BASE_ID")
         if base_id:
             table = api.table(base_id, "Voice_Profiles")
-            fields = {"Name": name}
-            if desc:
-                fields["Description"] = desc
-            if tone:
-                fields["Tone_Instructions"] = tone
+            fields = {
+                "Name": name,
+                "Description": desc or "",
+                "Tone_Instructions": tone or ""
+            }
+            
+            if voice_id:
+                # Update existing
+                table.update(voice_id, fields, typecast=True)
+            else:
+                # Create new
+                table.create(fields, typecast=True)
                 
-            table.create(fields, typecast=True)
     except Exception as e:
-        print(f"Error creating voice: {e}")
+        print(f"Error saving voice: {e}")
+        
+    return RedirectResponse(url="/admin/voices", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/voices/{voice_id}/delete", response_class=RedirectResponse)
+async def delete_voice(request: Request, voice_id: str):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
+        
+    try:
+        api = get_airtable_client()
+        base_id = os.environ.get("AIRTABLE_BASE_ID")
+        if base_id:
+            table = api.table(base_id, "Voice_Profiles")
+            table.delete(voice_id)
+    except Exception as e:
+        print(f"Error deleting voice: {e}")
+        
+    return RedirectResponse(url="/admin/voices", status_code=status.HTTP_303_SEE_OTHER)
         
     return RedirectResponse(url="/admin/voices", status_code=status.HTTP_303_SEE_OTHER)
 
