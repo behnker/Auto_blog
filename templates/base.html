@@ -11,7 +11,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700&display=swap"
         rel="stylesheet">
     <!-- Styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/hypersonic.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'twinkle': 'twinkle 3s ease-in-out infinite',
+                        'scanline': 'scanline 2s linear infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 10s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
     {% block extra_head %}{% endblock %}
 </head>
 
@@ -26,11 +42,28 @@
         </main>
 
         <footer>
-            &copy; {{ now.year }} {{ blog.name }}. All rights reserved.
-            <span class="sep">|</span>
-            <a href="/admin/dashboard" class="admin-link">Admin Access</a>
+            <div class="relative z-10 text-center text-gray-500 text-xs py-8">
+                &copy; {{ now.year }} {{ blog.name }}. All rights reserved.
+                <span class="mx-2">|</span>
+                <a href="/admin/dashboard" class="hover:text-white transition-colors">SYS.admin</a>
+            </div>
         </footer>
     </div>
+
+    <!-- Star Field Container (Fixed Background) -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#020205]">
+        <!-- Deep Nebula -->
+        <div
+            class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-900/10 rounded-full blur-[150px] animate-pulse-slow">
+        </div>
+        <div
+            class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-900/10 rounded-full blur-[150px] animate-pulse-slow delay-1000">
+        </div>
+        <!-- Stars injected here -->
+        <div id="star-field" class="absolute inset-0"></div>
+    </div>
+
+    <script src="/static/js/stars.js"></script>
 </body>
 
 </html>
