@@ -673,8 +673,7 @@ async def request_revision(request: Request,
 
     try:
         api = get_airtable_client()
-        env_var_name = blog["airtable"]["base_id_env"]
-        base_id = os.environ.get(env_var_name)
+        base_id = get_base_id(blog)
         
         if base_id:
             table = api.table(base_id, blog["airtable"]["table_name"])
@@ -689,111 +688,4 @@ async def request_revision(request: Request,
         
     return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}", status_code=status.HTTP_303_SEE_OTHER)
 
-@router.get("/blogs/{blog_id}/posts/{post_id}", response_class=HTMLResponse)
-async def post_detail_editor(request: Request, blog_id: str, post_id: str):
-    if not is_authenticated(request):
-        return RedirectResponse(url="/admin/login")
-        
-    blogs = load_blogs_config()
-    blog = next((b for b in blogs if b["id"] == blog_id), None)
-    if not blog:
-        raise HTTPException(status_code=404, detail="Blog not found")
 
-    post = None
-    try:
-        api = get_airtable_client()
-        env_var_name = blog["airtable"]["base_id_env"]
-        base_id = os.environ.get(env_var_name)
-        
-        if base_id:
-            table = api.table(base_id, blog["airtable"]["table_name"])
-            r = table.get(post_id)
-            f = r["fields"]
-            post = {
-                "id": r["id"],
-                "title": f.get("Title", ""),
-                "content": f.get("Content", ""),
-                "slug": f.get("Slug", ""),
-                "status": f.get("Status", "Draft"),
-                "image": f.get("Image_URL", ""),
-                "feedback": f.get("User_Feedback", "")
-            }
-    except Exception as e:
-        print(f"Error fetching post: {e}")
-        raise HTTPException(status_code=404, detail="Post not found")
-
-    return templates.TemplateResponse("admin/post_detail.html", {
-        "request": request,
-        "blog": blog,
-        "post": post
-    })
-
-@router.post("/posts/save", response_class=RedirectResponse)
-async def save_post_content(request: Request,
-                            blog_id: str = Form(...),
-                            post_id: str = Form(...),
-                            title: str = Form(...),
-                            content: str = Form(...),
-                            slug: Optional[str] = Form(None),
-                            image: Optional[str] = Form(None)):
-    if not is_authenticated(request):
-        return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
-
-    blogs = load_blogs_config()
-    blog = next((b for b in blogs if b["id"] == blog_id), None)
-    if not blog:
-        raise HTTPException(status_code=404, detail="Blog not found")
-
-    try:
-        api = get_airtable_client()
-        env_var_name = blog["airtable"]["base_id_env"]
-        base_id = os.environ.get(env_var_name)
-        
-        if base_id:
-            table = api.table(base_id, blog["airtable"]["table_name"])
-            fields = {
-                "Title": title,
-                "Content": content
-            }
-            if slug:
-                fields["Slug"] = slug
-            if image:
-                fields["Image_URL"] = image
-                
-            table.update(post_id, fields, typecast=True)
-            
-    except Exception as e:
-        print(f"Error saving post: {e}")
-        
-    return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}", status_code=status.HTTP_303_SEE_OTHER)
-
-@router.post("/posts/revise", response_class=RedirectResponse)
-async def request_revision(request: Request, 
-                           blog_id: str = Form(...), 
-                           post_id: str = Form(...), 
-                           feedback: str = Form(...)):
-    if not is_authenticated(request):
-        return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
-
-    blogs = load_blogs_config()
-    blog = next((b for b in blogs if b["id"] == blog_id), None)
-    if not blog:
-        raise HTTPException(status_code=404, detail="Blog not found")
-
-    try:
-        api = get_airtable_client()
-        env_var_name = blog["airtable"]["base_id_env"]
-        base_id = os.environ.get(env_var_name)
-        
-        if base_id:
-            table = api.table(base_id, blog["airtable"]["table_name"])
-            fields = {
-                "Status": "RevisionRequested",
-                "User_Feedback": feedback
-            }
-            table.update(post_id, fields, typecast=True)
-            
-    except Exception as e:
-        print(f"Error requesting revision: {e}")
-        
-    return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}", status_code=status.HTTP_303_SEE_OTHER)
