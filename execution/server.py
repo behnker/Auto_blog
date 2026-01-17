@@ -69,7 +69,12 @@ async def read_post(slug: str, request: Request):
         base_id = get_base_id(blog)
         table = airtable.table(base_id, blog["airtable"]["table_name"])
         # Find record by slug
+        # Note: Airtable formula string values should be single-quoted
         records = table.all(formula=f"{{Slug}}='{slug}'")
+        if not records:
+             # Try fallback for hash-based slugs if accidentally saved that way or URL encoding
+             records = table.all(formula=f"{{Slug}}='{slug.replace('#', '')}'")
+
         if not records:
              raise HTTPException(status_code=404, detail="Post not found")
         post = records[0]
