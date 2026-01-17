@@ -67,6 +67,18 @@ async def debug_connection(request: Request):
     """
     return HTMLResponse(content=html)
 
+@router.get("/debug/refresh_config", response_class=RedirectResponse)
+async def debug_refresh_config(request: Request):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login")
+        
+    start = datetime.now()
+    blogs = load_blogs_config(force=True)
+    duration = (datetime.now() - start).total_seconds()
+    
+    print(f"Config force refreshed in {duration}s. Loaded {len(blogs)} blogs.")
+    return RedirectResponse(url="/admin/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse("admin/login.html", {"request": request})
