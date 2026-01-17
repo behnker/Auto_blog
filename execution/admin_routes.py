@@ -270,10 +270,10 @@ async def save_agency(request: Request,
                 
     except Exception as e:
         print(f"Error saving agency: {e}")
-        with open("debug_error.log", "a") as f:
-            f.write(f"Error saving agency: {e}\n")
+        error_msg = str(e)
+        return RedirectResponse(url=f"/admin/agencies?error={error_msg}", status_code=status.HTTP_303_SEE_OTHER)
         
-    return RedirectResponse(url="/admin/agencies", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url="/admin/agencies?success=Agency Saved", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/agencies/{agency_id}/delete", response_class=RedirectResponse)
 async def delete_agency(request: Request, agency_id: str):
