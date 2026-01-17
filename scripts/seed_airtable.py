@@ -22,7 +22,9 @@ def load_data():
 def get_or_create(table_name, search_field, search_value, fields):
     table = api.table(BASE_ID, table_name)
     # Check if exists
-    formula = f"{{{search_field}}}='{search_value}'"
+    # Escape single quotes for Airtable formula
+    safe_value = search_value.replace("'", "''")
+    formula = f"{{{search_field}}}='{safe_value}'"
     existing = table.all(formula=formula)
     
     if existing:
@@ -62,6 +64,11 @@ def seed():
         blog.pop("SupportedLanguages", None)
         
         bid = get_or_create("Blogs", "Name", blog["Name"], blog)
+        
+        # Force update to ensure new schema fields (Airtable_Base_ID, etc.) are applied
+        print(f"[{blog['Name']}] Updating config fields...")
+        api.table(BASE_ID, "Blogs").update(bid, blog, typecast=True)
+        
         blog_map[blog["Name"]] = bid
         
     # 3. Voice Profiles

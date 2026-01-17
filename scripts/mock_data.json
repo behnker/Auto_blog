@@ -26,6 +26,10 @@
         {
             "Name": "Example Blog",
             "Domain": "example.com",
+            "Airtable_Base_ID": "appPlaceholderBaseID",
+            "Table_Name": "Posts",
+            "Affiliate_Tag": "example-20",
+            "System_Prompt_Key": "PROMPT_V1",
             "Agency": [
                 "Acme Media"
             ],
@@ -56,6 +60,10 @@
         {
             "Name": "Tech Insights",
             "Domain": "techinsights.io",
+            "Airtable_Base_ID": "appPlaceholderBaseID",
+            "Table_Name": "Posts",
+            "Affiliate_Tag": "tech-20",
+            "System_Prompt_Key": "PROMPT_TECH",
             "Agency": [
                 "Gravity Group"
             ],
@@ -84,6 +92,10 @@
         {
             "Name": "Health Daily",
             "Domain": "healthdaily.net",
+            "Airtable_Base_ID": "appPlaceholderBaseID",
+            "Table_Name": "Posts",
+            "Affiliate_Tag": "health-20",
+            "System_Prompt_Key": "PROMPT_HEALTH",
             "Agency": [
                 "Acme Media"
             ],
@@ -379,6 +391,140 @@
                 "Life",
                 "Growth",
                 "Mindset"
+            ],
+            "Metadata_JSON": "{}"
+        },
+        {
+            "Title": "The Future of Remote Work in 2026",
+            "Slug": "future-remote-work-2026",
+            "Content": "Remote work is no longer a trend...",
+            "Status": "Draft",
+            "PublishedDate": "2026-02-01T09:00:00.000Z",
+            "Blog": [
+                "Example Blog"
+            ],
+            "Author": [
+                "John Smith"
+            ],
+            "Voice_Profile_Override": [
+                "Persuasive"
+            ],
+            "PrimaryObjective": "Traffic",
+            "SecondaryObjective": "Engagement",
+            "PostIntentNote": "Discuss hybrid models.",
+            "Agency": [
+                "Acme Media"
+            ],
+            "Brief_Status": "Pending",
+            "ContractVersion": "v2.0",
+            "QA_Score_GEO_AEO": 0,
+            "TLDR": "- Hybrid is standard\n- Tools are evolving\n- Culture matters",
+            "FAQ_JSON": "[]",
+            "HowTo_JSON": "{}",
+            "Tables_JSON": "[]",
+            "Glossary_JSON": "[]",
+            "Entities_JSON": "[]",
+            "Schema_JSONLD": "{}",
+            "LLM_SnippetPack_JSON": "{}",
+            "Citations_JSON": "[]",
+            "CitationsEnabled": true,
+            "MetaTitle": "Remote Work 2026 predictions",
+            "MetaDescription": "What the future holds for digital nomads.",
+            "CanonicalUrl": "https://example.com/remote-work",
+            "Tags": [
+                "Remote",
+                "Work",
+                "Future"
+            ],
+            "Metadata_JSON": "{}"
+        },
+        {
+            "Title": "What's New in Python 3.14",
+            "Slug": "python-3-14-features",
+            "Content": "Python 3.14 brings significant performance improvements...",
+            "Status": "InReview",
+            "PublishedDate": "2026-01-20T10:00:00.000Z",
+            "Blog": [
+                "Tech Insights"
+            ],
+            "Author": [
+                "Alex Lee"
+            ],
+            "Voice_Profile_Override": [
+                "Analytical"
+            ],
+            "PrimaryObjective": "Traffic",
+            "SecondaryObjective": "Authority",
+            "PostIntentNote": "Technical deep dive.",
+            "Agency": [
+                "Gravity Group"
+            ],
+            "Brief_Status": "Generated",
+            "Brief_Data_JSON": "{\"brief\":\"Python updates\"}",
+            "Brief_Feedback": "",
+            "ContractVersion": "v2.0",
+            "QA_Score_GEO_AEO": 92,
+            "TLDR": "- Faster C-API\n- JIT improvements\n- Better typing",
+            "FAQ_JSON": "[]",
+            "HowTo_JSON": "{}",
+            "Tables_JSON": "[]",
+            "Glossary_JSON": "[]",
+            "Entities_JSON": "[]",
+            "Schema_JSONLD": "{}",
+            "LLM_SnippetPack_JSON": "{}",
+            "Citations_JSON": "[]",
+            "CitationsEnabled": false,
+            "MetaTitle": "Python 3.14 Features Explained",
+            "MetaDescription": "Everything you need to know about the pi release.",
+            "CanonicalUrl": "https://techinsights.io/python-3-14",
+            "Tags": [
+                "Python",
+                "Coding",
+                "Updates"
+            ],
+            "Metadata_JSON": "{}"
+        },
+        {
+            "Title": "Perfect Pour Over Coffee Guide",
+            "Slug": "perfect-pour-over",
+            "Content": "Brewing coffee is an art and a science...",
+            "Status": "Published",
+            "PublishedDate": "2026-01-05T08:30:00.000Z",
+            "Blog": [
+                "Example Blog"
+            ],
+            "Author": [
+                "Jane Doe"
+            ],
+            "Voice_Profile_Override": [
+                "Conversational"
+            ],
+            "PrimaryObjective": "Traffic",
+            "SecondaryObjective": "Engagement",
+            "PostIntentNote": "Lifestyle content.",
+            "Agency": [
+                "Acme Media"
+            ],
+            "Brief_Status": "Approved",
+            "ContractVersion": "v2.0",
+            "QA_Score_GEO_AEO": 98,
+            "TLDR": "- Use fresh beans\n- Water temp matters\n- Ratios are key",
+            "FAQ_JSON": "[{\"question\":\"What ratio?\",\"answer\":\"1:16 is standard.\"}]",
+            "HowTo_JSON": "{\"steps\":[\"Grind beans\",\"Boil water\",\"Pour slow\"]}",
+            "Tables_JSON": "[]",
+            "Glossary_JSON": "[]",
+            "Entities_JSON": "[]",
+            "Schema_JSONLD": "{}",
+            "LLM_SnippetPack_JSON": "{}",
+            "Citations_JSON": "[]",
+            "CitationsEnabled": true,
+            "MetaTitle": "Master the Pour Over Coffee",
+            "MetaDescription": "Step by step guide to better coffee.",
+            "CanonicalUrl": "https://example.com/coffee",
+            "Tags": [
+                "Coffee",
+                "Lifestyle",
+                "Guide"
             ],
             "Metadata_JSON": "{}"
         }

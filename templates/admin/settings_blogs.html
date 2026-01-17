@@ -1,0 +1,87 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Manage Blogs - Auto_Blog Admin{% endblock %}
+
+{% block content %}
+<section class="glass-panel">
+    <div class="panel-header">
+        <h1>Blog Configuration</h1>
+        <a href="/admin/settings" class="btn">← Back to Settings</a>
+    </div>
+
+    <div class="panel-body">
+        <p class="mb-4 text-muted">Manage the blogs served by this platform. These are stored in the
+            <strong>Blogs</strong> table in Airtable.</p>
+
+        <div class="grid cols-1">
+            <div class="panel">
+                <h4>Active Blogs</h4>
+                {% if blogs %}
+                <ul class="list-group">
+                    {% for blog in blogs %}
+                    <li class="flex justify-between items-center p-3 border-b">
+                        <div>
+                            <strong>{{ blog.name }}</strong>
+                            <div class="text-sm text-muted">{{ blog.domain }}</div>
+                        </div>
+                        <div class="badge">{{ "Airtable Managed" if blog.id|length > 10 else "YAML Static" }}</div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No blogs configured.</p>
+                {% endif %}
+            </div>
+
+            <div class="panel mt-4">
+                <h4>Add New Blog</h4>
+                <form method="POST" action="/admin/settings/blogs">
+                    <div class="form-group">
+                        <label>Blog Name</label>
+                        <input type="text" name="name" required placeholder="e.g. Finance Daily">
+                    </div>
+                    <div class="form-group">
+                        <label>Domain</label>
+                        <input type="text" name="domain" required placeholder="finance.example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Airtable Base ID</label>
+                        <input type="text" name="base_id" required placeholder="appXXXXXXXXXXXXXX">
+                        <small>The ID of the Base where this blog's posts are stored.</small>
+                    </div>
+                    <div class="form-actions mt-4">
+                        <button type="submit" class="btn primary">Add Blog</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .list-group {
+        list-style: none;
+        padding: 0;
+    }
+
+    .border-b {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .p-3 {
+        padding: 0.75rem;
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .justify-between {
+        justify-content: space-between;
+    }
+
+    .items-center {
+        align-items: center;
+    }
+</style>
+{% endblock %}
