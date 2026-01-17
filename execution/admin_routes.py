@@ -14,6 +14,59 @@ templates = Jinja2Templates(directory="templates")
 def is_authenticated(request: Request) -> bool:
     return request.cookies.get("admin_session") == "authenticated"
 
+@router.get("/debug/connection", response_class=HTMLResponse)
+async def debug_connection(request: Request):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login")
+        
+    log = []
+    status_icon = "❌"
+    
+    try:
+        api_key = os.environ.get("AIRTABLE_API_KEY")
+        base_id = os.environ.get("AIRTABLE_BASE_ID")
+        
+        log.append(f"API_KEY present: {'Yes' if api_key else 'No'}")
+        log.append(f"BASE_ID: {base_id}")
+        
+        if not api_key or not base_id:
+            raise Exception("Missing Credentials")
+            
+        from pyairtable import Api
+        api = Api(api_key)
+        
+        # Test 1: Fetch Blogs Table
+        log.append("Attempting to fetch 'Blogs' table...")
+        table = api.table(base_id, "Blogs")
+        records = table.all()
+        log.append(f"Success! Found {len(records)} records.")
+        
+        # Test 2: Inspect First Record
+        if records:
+            r = records[0]
+            log.append(f"Sample Record: {r['fields']}")
+        
+        status_icon = "✅"
+        
+    except Exception as e:
+        import traceback
+        log.append(f"ERROR: {str(e)}")
+        log.append(traceback.format_exc())
+        
+    html = f"""
+    <html>
+    <body style="background:#0d1117; color:#c9d1d9; font-family:monospace; padding:20px;">
+        <h1>{status_icon} Connection Debugger</h1>
+        <pre style="background:#161b22; padding:15px; border-radius:8px;">
+{chr(10).join(log)}
+        </pre>
+        <br>
+        <a href="/admin/dashboard" style="color:#58a6ff">Back to Dashboard</a>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html)
+
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse("admin/login.html", {"request": request})
@@ -342,6 +395,45 @@ async def settings_page(request: Request):
     if not is_authenticated(request):
         return RedirectResponse(url="/admin/login")
     return templates.TemplateResponse("admin/settings.html", {"request": request})
+
+@router.get("/settings/blogs", response_class=HTMLResponse)
+async def settings_blogs(request: Request):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login")
+    
+    blogs = load_blogs_config()
+    return templates.TemplateResponse("admin/settings_blogs.html", {"request": request, "blogs": blogs})
+
+@router.post("/settings/blogs", response_class=RedirectResponse)
+async def create_blog_config(request: Request, 
+                             name: str = Form(...), 
+                             domain: str = Form(...), 
+                             base_id: str = Form(...)): # Storing Direct ID
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
+        
+    try:
+        api = get_airtable_client()
+        master_base = os.environ.get("AIRTABLE_BASE_ID")
+        if master_base:
+            table = api.table(master_base, "Blogs")
+            table.create({
+                "Name": name,
+                "Domain": domain,
+                "Airtable_Base_ID": base_id,
+                "Table_Name": "Posts", # Default
+                "Generation_Contract": "v2.0" # Default
+            }, typecast=True)
+            
+            # Invalidate Cache
+            from execution.utils import _BLOGS_CACHE
+            # We can't clear imported global easily unless we expose a clear function, 
+            # but for now waiting 60s or restarting server is acceptable for MVP.
+            
+    except Exception as e:
+        print(f"Error creating blog config: {e}")
+        
+    return RedirectResponse(url="/admin/settings/blogs", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/authors", response_class=RedirectResponse)
 async def create_author(request: Request, name: str = Form(...), bio: Optional[str] = Form(None), voice_id: Optional[str] = Form(None)):
