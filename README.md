@@ -63,7 +63,7 @@ blogs:
 uvicorn execution.server:app --reload
 ```
 *   **Public Site**: `http://localhost:8000`
-*   **Admin Dashboard**: `http://localhost:8000/admin/login` (Login: `admin` / `admin`)
+*   **Admin Dashboard**: `http://localhost:8000/admin/dashboard` (Navigation to Agencies, Authors, Voices, Settings)
 *   **Sitemap**: `http://localhost:8000/sitemap.xml`
 
 ## Usage

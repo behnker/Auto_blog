@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Voice Studio{% endblock %}
+{% block header %}Voice Studio{% endblock %}
+{% block subheader %}Voice profiles for consistent, scalable authoring.{% endblock %}
+
+{% block content %}
+<section class="page">
+    <div class="card">
+        <div class="cardHeader">
+            <div>
+                <h3>Voice Profiles</h3>
+                <p>Create profiles that authors can inherit or override.</p>
+            </div>
+            <div class="rowActions">
+                <button class="btn primary">+ New Voice</button>
+            </div>
+        </div>
+        <div class="cardBody">
+            <table aria-label="Voice Profiles">
+                <thead>
+                    <tr>
+                        <th>Voice</th>
+                        <th>Description</th>
+                        <th>Tone</th>
+                        <th style="text-align:right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for voice in voices %}
+                    <tr>
+                        <td><strong>{{ voice.name }}</strong></td>
+                        <td style="color:var(--muted);">{{ voice.desc }}</td>
+                        <td style="color:var(--muted);">{{ voice.tone }}</td>
+                        <td style="text-align:right;">
+                            <button class="btn">Edit</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

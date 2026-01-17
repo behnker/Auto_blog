@@ -1,7 +1,7 @@
 # AI_Blog Base Schema Description
-*Confirmed as of January 17, 2026*
+*Confirmed as of January 17, 2026 (Updated for Phase 4)*
 
-This document serves as the "Source of Truth" for the Airtable Schema.
+This document serves as the "Source of Truth" for the Airtable Schema (covering Phases 1-4).
 
 ## Table 1: Posts
 **Purpose**: Stores all blog content, publishing metadata, QA scores, and structured SEO/AI data.
@@ -20,8 +20,9 @@ This document serves as the "Source of Truth" for the Airtable Schema.
 *   **Assignee** (User): `Responsible team member`
 *   **PublishedDate** (Date): `Publication timestamp`
 *   **Author_Profile** (Linked record): `Links to Author_Profile table`
+*   **Voice_Profile_Override** (Linked record): `Specific voice for this post` [Phase 4]
 
-### Contract & QA Fields (New vs v1)
+### Contract & QA Fields
 *   **GenerationContractDefault** (Single select): `v1.1`, `v2.0`
 *   **ContractVersion** (Single line text): `Specific contract version used`
 *   **QA_Score_GEO_AEO** (Number - Integer): `Quality score for GEO/AEO optimization`
@@ -29,7 +30,12 @@ This document serves as the "Source of Truth" for the Airtable Schema.
 *   **GeneratorInput_JSON** (Long text): `Input parameters for content generator`
 *   **GeneratorOutput_JSON** (Long text): `Raw output from content generator`
 
-### v2.0 Content & SEO Storage
+### Phase 4: Research & Briefs
+*   **Brief_Status** (Single select): `Pending`, `Generated`, `Approved`
+*   **Brief_Data_JSON** (Long text): `The generated brief content`
+*   **Brief_Feedback** (Long text): `User feedback on the brief`
+
+### v2.0 Content & SEO Storage (JSON Buffers)
 *   **TLDR** (Long text): `Short summary/abstract`
 *   **FAQ_JSON** (Long text): `Structured FAQ data`
 *   **HowTo_JSON** (Long text): `Step-by-step instructions`
@@ -61,6 +67,19 @@ This document serves as the "Source of Truth" for the Airtable Schema.
 
 *   **Author_Name** (Single line text)
 *   **Author_Bio** (Long text)
+*   **Writing_Style** (Long text) [Deprecated in Phase 4]
+*   **Voice_Profile** (Linked record): `Default voice for this author` [Phase 4]
 *   **Publication_Name** (Single line text)
 *   **Number_of_Posts** (Count)
 *   **Posts** (Linked record)
+
+## Table 4: Voice_Profiles [NEW Phase 4]
+**Purpose**: Reusable tone and style configurations.
+
+*   **Name** (Single line text): `e.g. Professional, Witty`
+*   **Description** (Long text): `Internal description`
+*   **Tone_Instructions** (Long text): `Specific adjectives and tonal guides`
+*   **Style_Guide** (Long text): `Do's and Don'ts`
+*   **Sample_Text** (Long text): `Excerpt for few-shot prompting`
+*   **Authors** (Linked record): `Authors using this voice`
+*   **Posts** (Linked record): `Posts using this voice`

@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Authors{% endblock %}
+{% block header %}Authors{% endblock %}
+{% block subheader %}Personas + bios + default voice profiles.{% endblock %}
+
+{% block content %}
+<section class="page">
+    <div class="card">
+        <div class="cardHeader">
+            <div>
+                <h3>Authors</h3>
+                <p>Assign authors to blogs and review output quality.</p>
+            </div>
+            <div class="rowActions">
+                <button class="btn primary">+ New Author</button>
+            </div>
+        </div>
+        <div class="cardBody">
+            <table aria-label="Authors">
+                <thead>
+                    <tr>
+                        <th>Author</th>
+                        <th>Bio</th>
+                        <th>Voice</th>
+                        <th style="text-align:right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for author in authors %}
+                    <tr>
+                        <td><strong>{{ author.name }}</strong></td>
+                        <td style="color:var(--muted);">{{ author.bio }}</td>
+                        <td><span class="chip">{{ author.voice }}</span></td>
+                        <td style="text-align:right;">
+                            <button class="btn">Edit</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

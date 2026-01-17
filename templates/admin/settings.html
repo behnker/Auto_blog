@@ -1,0 +1,62 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Settings{% endblock %}
+{% block header %}Settings{% endblock %}
+{% block subheader %}System configuration and defaults.{% endblock %}
+
+{% block content %}
+<section class="page">
+    <div class="grid cols-2">
+        <!-- General Config -->
+        <div class="card">
+            <div class="cardHeader">
+                <div>
+                    <h3>General Configuration</h3>
+                    <p>Publishing defaults.</p>
+                </div>
+            </div>
+            <div class="cardBody">
+                <div class="formGrid" style="grid-template-columns:1fr;">
+                    <div class="field">
+                        <label>Default Contract Version</label>
+                        <select>
+                            <option value="v1.1">v1.1 (Standard)</option>
+                            <option value="v2.0" selected>v2.0 (Search Optimised)</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Quality Threshold (QA)</label>
+                        <input type="number" value="85" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integrations -->
+        <div class="card">
+            <div class="cardHeader">
+                <div>
+                    <h3>Integrations</h3>
+                    <p>External service connections.</p>
+                </div>
+            </div>
+            <div class="cardBody">
+                <table aria-label="Integrations">
+                    <tbody>
+                        <tr>
+                            <td><strong>Airtable</strong></td>
+                            <td><span class="chip good"><span class="dot"></span> Connected</span></td>
+                            <td style="text-align:right;"><button class="btn">Test</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Anthropic</strong></td>
+                            <td><span class="chip good"><span class="dot"></span> Active</span></td>
+                            <td style="text-align:right;"><button class="btn">Test</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

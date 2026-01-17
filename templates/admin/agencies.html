@@ -1,0 +1,47 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Agencies{% endblock %}
+{% block header %}Agencies{% endblock %}
+{% block subheader %}Create, manage, and monitor agencies (tenants).{% endblock %}
+
+{% block content %}
+<section class="page">
+    <div class="card">
+        <div class="cardHeader">
+            <div>
+                <h3>Agencies</h3>
+                <p>Tenant overview.</p>
+            </div>
+            <div class="rowActions">
+                <button class="btn primary">+ New Agency</button>
+            </div>
+        </div>
+        <div class="cardBody">
+            <table aria-label="Agencies">
+                <thead>
+                    <tr>
+                        <th>Agency</th>
+                        <th>Blogs</th>
+                        <th>Posts (7d)</th>
+                        <th>Avg QA</th>
+                        <th style="text-align:right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agency in agencies %}
+                    <tr>
+                        <td><strong>{{ agency.name }}</strong></td>
+                        <td>{{ agency.blogs_count }}</td>
+                        <td>{{ agency.posts_7d }}</td>
+                        <td><span class="chip good">{{ agency.avg_qa }}</span></td>
+                        <td style="text-align:right;">
+                            <button class="btn">Manage</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

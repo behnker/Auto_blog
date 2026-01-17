@@ -6,21 +6,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auto_Blog Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/admin_glass.css">
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body>
-    <div class="layout">
+    <div class="app">
+        <!-- SIDEBAR NAV -->
         <aside class="sidebar">
-            <h2>Auto_Blog</h2>
-            <nav>
-                <a href="/admin/dashboard" class="nav-link">Dashboard</a>
-                <a href="/admin/agencies" class="nav-link">Agencies</a>
-                <a href="/admin/authors" class="nav-link">Authors</a>
+            <div class="brand">
+                <div class="logo" aria-hidden="true"></div>
+                <div>
+                    <h1>Auto_Blog Admin</h1>
+                    <p>Hybrid workflow • glass UI</p>
+                </div>
+            </div>
+
+            <nav class="nav" id="nav">
+                <a href="/admin/dashboard" class="{% if request.url.path == '/admin/dashboard' %}active{% endif %}">
+                    <span class="icon" aria-hidden="true">▦</span> Dashboard
+                </a>
+                <a href="/admin/agencies" class="{% if '/admin/agencies' in request.url.path %}active{% endif %}">
+                    <span class="icon" aria-hidden="true">◎</span> Agencies
+                </a>
+                <a href="/admin/authors" class="{% if '/admin/authors' in request.url.path %}active{% endif %}">
+                    <span class="icon" aria-hidden="true">✦</span> Authors
+                </a>
+                <a href="/admin/voices" class="{% if '/admin/voices' in request.url.path %}active{% endif %}">
+                    <span class="icon" aria-hidden="true">◈</span> Voices
+                </a>
+                <a href="/admin/settings" class="{% if '/admin/settings' in request.url.path %}active{% endif %}">
+                    <span class="icon" aria-hidden="true">⚙</span> Settings
+                </a>
             </nav>
+
+            <div class="meta" role="note" aria-label="Environment summary">
+                <div class="row"><span class="k">Tenant</span><span class="v">Agency Owner</span></div>
+                <div class="row"><span class="k">Primary Objective</span><span class="v">Shown (read-only)</span></div>
+                <div class="row"><span class="k">Contract Default</span><span class="v">v1.1 / v2.0</span></div>
+            </div>
+
+            <div class="meta" style="margin-top:10px;">
+                <div class="row"><span class="k">Tip</span><span class="v">Press “/” to search</span></div>
+                <div class="row"><span class="k">Quick</span><span class="v">“New Post” opens a modal</span></div>
+            </div>
         </aside>
-        <main class="content">
-            {% block content %}{% endblock %}
+
+        <!-- MAIN -->
+        <main class="main">
+            <div class="topbar">
+                <div class="titleBlock">
+                    <div class="crumbs">Admin / {% block title %}{% endblock %}</div>
+                    <h2>{% block header %}{% endblock %}</h2>
+                    <p>{% block subheader %}{% endblock %}</p>
+                </div>
+                <div class="actions">
+                    <div class="pill" title="Search (/)" aria-label="Search">
+                        <span aria-hidden="true">⌕</span>
+                        <input id="globalSearch" placeholder="Search blogs, posts, authors…" />
+                    </div>
+                    <!-- Global Actions can go here -->
+                </div>
+            </div>
+
+            <div class="container">
+                {% block content %}{% endblock %}
+            </div>
         </main>
     </div>
 </body>

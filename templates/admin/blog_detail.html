@@ -1,86 +1,111 @@
 {% extends "admin/base.html" %}
 
+{% block title %}{{ blog.name }}{% endblock %}
+{% block header %}{{ blog.name }}{% endblock %}
+{% block subheader %}Contract: {{ blog.generation_contract_default or 'v1.1' }} • {{ blog.primary_objective }}{%
+endblock %}
+
 {% block content %}
-<div style="margin-bottom: 2rem;">
-    <a href="/admin/dashboard" style="color: var(--text-secondary); text-decoration: none;">&larr; Back to Dashboard</a>
-</div>
-
-<div class="header-actions">
-    <div>
-        <h1 style="margin-bottom: 0.5rem;">{{ blog.name }}</h1>
-        <code style="color: var(--accent-color);">{{ blog.id }}</code>
+<section class="page" id="page-blog-detail">
+    <!-- Config Card -->
+    <div class="card">
+        <div class="cardHeader">
+            <div>
+                <h3>Configuration</h3>
+                <p>Base ID: {{ blog.airtable.base_id_resolved }}</p>
+            </div>
+            <div class="rowActions">
+                <a href="https://airtable.com/{{ blog.airtable.base_id_resolved }}" target="_blank" class="btn">Open
+                    Airtable</a>
+                <button class="btn primary" onclick="alert('Not implemented in UI yet -> Use CLI/Curl')">+ New
+                    Post</button>
+            </div>
+        </div>
+        <div class="cardBody">
+            <div class="grid cols-3">
+                <div class="field">
+                    <label>Primary Objective</label>
+                    <div style="font-size:13px;">{{ blog.primary_objective }}</div>
+                </div>
+                <div class="field">
+                    <label>Contract Version</label>
+                    <div style="font-size:13px;">{{ blog.generation_contract_default or 'v1.1' }}</div>
+                </div>
+                <div class="field">
+                    <label>Domain</label>
+                    <div style="font-size:13px;">{{ blog.domain }}</div>
+                </div>
+            </div>
+        </div>
     </div>
-    <button class="btn btn-primary" onclick="alert('Not implemented in UI yet -> Use CLI/Curl')">+ Generate New
-        Post</button>
-</div>
 
-<div class="card" style="margin-bottom: 2rem;">
-    <h3>Configuration</h3>
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; font-size: 0.9rem;">
-        <div>
-            <span style="color: var(--text-secondary);">Contract:</span><br>
-            <strong>{{ blog.generation_contract_default or 'v1.1' }}</strong>
+    <!-- Posts Table -->
+    <div class="card">
+        <div class="cardHeader">
+            <div>
+                <h3>Recent Posts</h3>
+                <p>Manage drafts, SEO optimization, and publishing.</p>
+            </div>
         </div>
-        <div>
-            <span style="color: var(--text-secondary);">Primary Objective:</span><br>
-            <strong>{{ blog.primary_objective }}</strong>
-        </div>
-        <div>
-            <span style="color: var(--text-secondary);">Knowledge Base:</span><br>
-            <strong>Default</strong>
+        <div class="cardBody">
+            <table aria-label="Posts">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Title / Slug</th>
+                        <th>Optimization (v2)</th>
+                        <th>Date</th>
+                        <th style="text-align:right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts %}
+                    <tr>
+                        <td>
+                            {% if post.fields.Status == 'Published' %}
+                            <span class="chip good"><span class="dot"></span> Published</span>
+                            {% elif post.fields.Status == 'DraftING' or post.fields.Status == 'Drafting' %}
+                            <span class="chip warn"><span class="dot"></span> Drafting</span>
+                            {% else %}
+                            <span class="chip">{{ post.fields.Status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ post.fields.Title or 'Untitled' }}</strong><br>
+                            <span style="color:var(--muted); font-size:11px;">/{{ post.fields.Slug }}</span>
+                        </td>
+                        <td>
+                            {% if post.fields.ContractVersion == 'v2.0' %}
+                            {% if post.fields.QA_Score_GEO_AEO %}
+                            {% if post.fields.QA_Score_GEO_AEO > 80 %}
+                            <span style="color:var(--accent2); font-weight:600;">{{ post.fields.QA_Score_GEO_AEO
+                                }}/100</span>
+                            {% else %}
+                            <span style="color:var(--accent4); font-weight:600;">{{ post.fields.QA_Score_GEO_AEO
+                                }}/100</span>
+                            {% endif %}
+                            {% else %}
+                            <span style="color:var(--muted);">Pending QA</span>
+                            {% endif %}
+                            {% else %}
+                            <span style="color:var(--muted2);">v1.1</span>
+                            {% endif %}
+                        </td>
+                        <td style="color:var(--muted);">{{ post.fields.PublishedDate[:10] }}</td>
+                        <td style="text-align:right;">
+                            <button class="btn">Edit</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding: 20px; color:var(--muted);">
+                            No posts found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
-
-<h2>Post Management</h2>
-<div class="table-container card" style="padding: 0; overflow: hidden;">
-    <table style="width: 100%; border-collapse: collapse; text-align: left;">
-        <thead
-            style="background: rgba(0,0,0,0.2); color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase;">
-            <tr>
-                <th style="padding: 1rem;">Status</th>
-                <th style="padding: 1rem;">Title</th>
-                <th style="padding: 1rem;">Optimization (v2)</th>
-                <th style="padding: 1rem;">Date</th>
-                <th style="padding: 1rem;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for post in posts %}
-            <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 1rem;">
-                    <span class="status-badge status-{{ post.fields.Status }}">{{ post.fields.Status }}</span>
-                </td>
-                <td style="padding: 1rem;">
-                    <strong>{{ post.fields.Title or 'Untitled' }}</strong><br>
-                    <small style="color: var(--text-secondary);">/{{ post.fields.Slug }}</small>
-                </td>
-                <td style="padding: 1rem;">
-                    {% if post.fields.ContractVersion == 'v2.0' %}
-                    {% if post.fields.QA_Score_GEO_AEO %}
-                    <span style="color: {{ '#4ade80' if post.fields.QA_Score_GEO_AEO > 80 else '#facc15' }}">
-                        {{ post.fields.QA_Score_GEO_AEO }}/100
-                    </span>
-                    {% else %}
-                    <span style="color: var(--text-secondary);">Pending QA</span>
-                    {% endif %}
-                    {% else %}
-                    <span style="opacity: 0.5;">v1.1</span>
-                    {% endif %}
-                </td>
-                <td style="padding: 1rem; color: var(--text-secondary);">{{ post.fields.PublishedDate[:10] }}</td>
-                <td style="padding: 1rem;">
-                    <a href="#" style="color: var(--accent-color); text-decoration: none;">Edit</a>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5" style="padding: 2rem; text-align: center; color: var(--text-secondary);">
-                    No posts found in Airtable for this blog.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+</section>
 {% endblock %}
