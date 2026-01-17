@@ -480,21 +480,21 @@ async def author_detail(request: Request, author_id: str):
     try:
         api = get_airtable_client()
         base_id = os.environ.get("AIRTABLE_BASE_ID")
-            table = api.table(base_id, "Author_Profile")
-            record = table.get(author_id)
-            f = record["fields"]
-            
-            # Fetch Voices for Dropdown
-            voices_table = api.table(base_id, "Voice_Profiles")
-            voices_records = voices_table.all()
-            voices = [{"id": v["id"], "name": v["fields"].get("Name", "Unnamed")} for v in voices_records]
+        table = api.table(base_id, "Author_Profile")
+        record = table.get(author_id)
+        f = record["fields"]
+        
+        # Fetch Voices for Dropdown
+        voices_table = api.table(base_id, "Voice_Profiles")
+        voices_records = voices_table.all()
+        voices = [{"id": v["id"], "name": v["fields"].get("Name", "Unnamed")} for v in voices_records]
 
-            author = {
-                "id": record["id"],
-                "name": f.get("Author_Name", "Unnamed"),
-                "bio": f.get("Author_Bio", ""),
-                "voice_ids": f.get("Voice_Profile", []) # List of linked IDs
-            }
+        author = {
+            "id": record["id"],
+            "name": f.get("Author_Name", "Unnamed"),
+            "bio": f.get("Author_Bio", ""),
+            "voice_ids": f.get("Voice_Profile", []) # List of linked IDs
+        }
     except Exception as e:
         print(f"Error fetching author detail: {e}")
         raise HTTPException(status_code=404, detail="Author not found")
