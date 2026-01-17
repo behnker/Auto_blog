@@ -234,6 +234,7 @@ async def save_agency(request: Request,
         return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
         
     try:
+        print(f"DEBUG: Saving Agency. Name='{name}', Website='{website}'")
         api = get_airtable_client()
         base_id = os.environ.get("AIRTABLE_BASE_ID")
         if base_id:
