@@ -563,8 +563,7 @@ async def create_post(request: Request, blog_id: str, title: str = Form(...), vo
         
     try:
         api = get_airtable_client()
-        env_var_name = blog["airtable"]["base_id_env"]
-        base_id = os.environ.get(env_var_name)
+        base_id = get_base_id(blog)
         
         if base_id:
             table = api.table(base_id, blog["airtable"]["table_name"])
@@ -596,8 +595,7 @@ async def post_detail_editor(request: Request, blog_id: str, post_id: str):
     post = None
     try:
         api = get_airtable_client()
-        env_var_name = blog["airtable"]["base_id_env"]
-        base_id = os.environ.get(env_var_name)
+        base_id = get_base_id(blog)
         
         if base_id:
             table = api.table(base_id, blog["airtable"]["table_name"])
@@ -640,8 +638,7 @@ async def save_post_content(request: Request,
 
     try:
         api = get_airtable_client()
-        env_var_name = blog["airtable"]["base_id_env"]
-        base_id = os.environ.get(env_var_name)
+        base_id = get_base_id(blog)
         
         if base_id:
             table = api.table(base_id, blog["airtable"]["table_name"])
