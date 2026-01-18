@@ -145,11 +145,9 @@ async def dashboard(request: Request):
         if base_id:
             table = api.table(base_id, "Posts")
             # Fetch fields needed for Tile View
-            # Fetch fields needed for Tile View
             # Note: "Blog" and "Author_Profile" are linked records (lists of IDs)
-            fields = ["Title", "Status", "PublishedDate", "QA_Score_GEO_AEO", "Blog", "Author_Name", "Slug", "PrimaryObjective", "Generation_Contract"]
-            # Removed sort=["-CreatedTime"] to avoid 422 Error. Default order is acceptable (usually creation time).
-            records = table.all(fields=fields)
+            # Remove strict fields list to prevent 422 if schema is missing columns
+            records = table.all()
             
             for r in records:
                 f = r["fields"]
