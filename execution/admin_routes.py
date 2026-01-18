@@ -97,6 +97,28 @@ async def logout(request: Request):
     response.delete_cookie("admin_session")
     return response
 
+# Helper for Global Admin Context (Scope Bar)
+def get_current_user(request: Request):
+    # Phase 6: Simple Role Mocking until Auth v2
+    # In production, this would decode a JWT or check DB session
+    return {
+        "name": "Agency Owner",
+        "role": "Admin", # Options: Admin, Owner, Editor, Writer
+        "avatar": "https://ui-avatars.com/api/?name=Agency+Owner&background=0D8ABC&color=fff"
+    }
+
+def render_admin(request: Request, template_name: str, context: dict = {}):
+    from execution.utils import load_blogs_config, get_all_agencies
+    
+    # Inject Global Context
+    ctx = context.copy()
+    ctx["request"] = request
+    ctx["current_user"] = get_current_user(request)
+    ctx["global_agencies"] = get_all_agencies()
+    ctx["global_blogs"] = load_blogs_config()
+    
+    return templates.TemplateResponse(template_name, ctx)
+
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):
     if not is_authenticated(request):
@@ -104,61 +126,70 @@ async def dashboard(request: Request):
     
     blogs = load_blogs_config()
     
-    metrics = {
-        "drafts": 0,
-        "in_review": 0,
-        "published_7d": 0,
-        "avg_qa": 0
-    }
-    
+    # Scope filtering (UX-1)
+    scope_agency = request.query_params.get("scope_agency", "all")
+    # scope_blog = request.query_params.get("scope_blog", "all") # Not fully implemented in filter yet
+
     try:
         api = get_airtable_client()
         base_id = os.environ.get("AIRTABLE_BASE_ID")
+        
+        # Kanban Columns
+        board = {
+            "Draft": [],
+            "InReview": [],
+            "ChangesRequested": [],
+            "Published": []
+        }
+        
         if base_id:
             table = api.table(base_id, "Posts")
-            # Fetch all posts to aggregate stats (optimized to fetch only needed fields)
-            records = table.all(fields=["Status", "PublishedDate", "QA_Score_GEO_AEO"])
-            
-            now = datetime.now()
-            qa_sum = 0
-            qa_count = 0
+            # Fetch fields needed for Tile View
+            # Note: "Blog" and "Author_Profile" are linked records (lists of IDs)
+            fields = ["Title", "Status", "PublishedDate", "QA_Score_GEO_AEO", "Blog", "Author_Name", "Slug", "PrimaryObjective", "Generation_Contract"]
+            records = table.all(fields=fields, sort=["-CreatedTime"])
             
             for r in records:
                 f = r["fields"]
-                status_val = f.get("Status", "")
+                status = f.get("Status", "Draft")
                 
-                # Count Statuses
-                if status_val == "Draft":
-                    metrics["drafts"] += 1
-                elif status_val in ["InReview", "NeedsReview"]:
-                    metrics["in_review"] += 1
-                elif status_val == "Published":
-                    # Check 7-day window
-                    pdate_str = f.get("PublishedDate")
-                    if pdate_str:
-                        try:
-                            # Airtable dates are YYYY-MM-DD
-                            pdate = datetime.fromisoformat(pdate_str)
-                            if (now - pdate).days <= 7:
-                                metrics["published_7d"] += 1
-                        except ValueError:
-                            pass # Ignore parse errors
-                            
-                # Sum QA Scores
-                qa_score = f.get("QA_Score_GEO_AEO")
-                if isinstance(qa_score, (int, float)):
-                    qa_sum += qa_score
-                    qa_count += 1
-            
-            if qa_count > 0:
-                metrics["avg_qa"] = int(qa_sum / qa_count)
+                # Normalize Status to Board Columns
+                col = "Draft"
+                if status == "Published":
+                    col = "Published"
+                elif status in ["InReview", "NeedsReview", "Approvals"]:
+                    col = "InReview"
+                elif status in ["ChangesRequested", "Revision"]:
+                    col = "ChangesRequested"
+                # Else stays Draft
                 
+                # Apply Agency Scope Filter (if selected)
+                # This requires resolving which Agency the Post's Blog belongs to. 
+                # For efficiency in Phase 6 Step 1, we might skip strict agency filtering 
+                # inside the loop unless we have a fast mapping. 
+                # TODO: Implement strict scope filtering.
+                
+                item = {
+                    "id": r["id"],
+                    "title": f.get("Title", "Untitled"),
+                    "status": status,
+                    "date": f.get("PublishedDate") or r["createdTime"][:10],
+                    "author": f.get("Author_Name", "Unassigned"),
+                    "score": f.get("QA_Score_GEO_AEO", "-"),
+                    "blog_id": (f.get("Blog") or [""])[0], # Naive
+                    "objective": f.get("PrimaryObjective", "General"),
+                    "contract": f.get("Generation_Contract", "v1.1")
+                }
+                
+                if col in board:
+                    board[col].append(item)
+                    
     except Exception as e:
-        print(f"Error fetching dashboard metrics: {e}")
-    
-    return templates.TemplateResponse("admin/dashboard.html", {
-        "request": request,
-        "metrics": metrics,
+        print(f"Error fetching board data: {e}")
+        board = {}
+
+    return render_admin(request, "admin/dashboard.html", {
+        "board": board,
         "blogs": blogs
     })
 
@@ -167,27 +198,27 @@ async def agencies_list(request: Request):
     if not is_authenticated(request):
         return RedirectResponse(url="/admin/login")
         
+    from execution.utils import get_all_agencies
+    
+    # 1. Get Base Agencies
+    base_agencies = get_all_agencies()
+    
+    # 2. Enrich with Metrics (if possible/efficient)
     agencies = []
     try:
         api = get_airtable_client()
         base_id = os.environ.get("AIRTABLE_BASE_ID")
+        
         if base_id:
-            # Fetch Agencies
-            table = api.table(base_id, "Agencies")
-            records = table.all()
-            
             # Fetch All Posts for Metrics (Lightweight)
-            # Optimization: In production, rely on Rollup fields in Airtable.
-            # For MVP/Phase 5, we fetch to ensure accuracy "autonomously".
             posts_table = api.table(base_id, "Posts")
             all_posts = posts_table.all(fields=["Blog", "PublishedDate", "QA_Score_GEO_AEO"])
             
             from datetime import datetime, timedelta, timezone
             now = datetime.now(timezone.utc)
             
-            for r in records:
-                f = r["fields"]
-                linked_blog_ids = f.get("Blogs", [])
+            for agency in base_agencies:
+                linked_blog_ids = agency.get("blog_ids", [])
                 
                 # Calculate Metrics
                 p_count = 0
@@ -217,19 +248,19 @@ async def agencies_list(request: Request):
                 avg_qa = int(qa_sum / qa_count) if qa_count > 0 else 0
 
                 agencies.append({
-                    "id": r["id"],
-                    "name": f.get("Name", "Unnamed"),
-                    "website": f.get("Website", ""),
+                    "id": agency["id"],
+                    "name": agency["name"],
+                    "website": agency["website"],
                     "blogs_count": len(linked_blog_ids),
                     "posts_7d": p_count,
                     "avg_qa": avg_qa
                 })
     except Exception as e:
-        print(f"Error fetching agencies: {e}")
+        print(f"Error fetching agency metrics: {e}")
+        # Fallback to base data if metrics fail
+        agencies = base_agencies
         
-    return templates.TemplateResponse("admin/agencies.html", {"request": request, "agencies": agencies})
-
-    return templates.TemplateResponse("admin/agencies.html", {"request": request, "agencies": agencies})
+    return render_admin(request, "admin/agencies.html", {"agencies": agencies})
 
 @router.get("/agencies/new", response_class=HTMLResponse)
 async def new_agency_page(request: Request):
@@ -363,6 +394,70 @@ async def agency_detail(request: Request, agency_id: str):
         "agency": agency,
         "blogs": blogs
     })
+
+@router.get("/blogs/{blog_id}/posts/{post_id}", response_class=HTMLResponse)
+async def post_review_studio(request: Request, blog_id: str, post_id: str):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login")
+        
+    post = None
+    blog = get_blog_config(blog_id)
+    
+    try:
+        api = get_airtable_client()
+        base_id = get_base_id(blog)
+        table = api.table(base_id, blog["airtable"]["table_name"])
+        record = table.get(post_id)
+        post = record
+    except Exception as e:
+        print(f"Error fetching post: {e}")
+        # raise HTTPException(status_code=404, detail="Post not found")
+    
+    return render_admin(request, "admin/post_review.html", {
+        "blog": blog,
+        "post": post,
+        "mode": "edit" 
+    })
+
+@router.post("/posts/save_content", response_class=RedirectResponse)
+async def save_post_content(
+    request: Request,
+    blog_id: str = Form(...),
+    post_id: str = Form(...),
+    content: str = Form(...),
+    # Authenticity Fields (Optional checkboxes/text)
+    auth_quote_check: Optional[str] = Form(None),
+    auth_quote_text: Optional[str] = Form(None),
+    auth_opinion_check: Optional[str] = Form(None),
+    auth_opinion_text: Optional[str] = Form(None)
+):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    blog = get_blog_config(blog_id)
+    try:
+        api = get_airtable_client()
+        base_id = get_base_id(blog)
+        table = api.table(base_id, blog["airtable"]["table_name"])
+        
+        fields = {
+            "Content": content,
+            # Map Authenticity Fields (assuming schema supports these or we use generic fields for now)
+            # For UX-1 MVP, we might store these in JSON or specific columns if they exist.
+            # Based on spec, we should have them. If not, we'll likely need to add them to schema later.
+            # For now, let's assuming they map to "Authenticity_Quote" etc or we append to Notes?
+            # Let's save to "Authenticity_Quote" and "Authenticity_Opinion" text fields if they exist.
+        }
+        
+        # Simple Logic to update status if needed? Spec says "Save as Draft" button does this.
+        # This route is generic "Save".
+        
+        table.update(post_id, fields, typecast=True)
+        
+    except Exception as e:
+        print(f"Error saving post content: {e}")
+        
+    return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.get("/authors", response_class=HTMLResponse)
 async def authors_list(request: Request):

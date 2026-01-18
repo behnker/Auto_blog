@@ -50,8 +50,10 @@
 
 </article>
 
-<div style="text-align: center; margin-top: 4rem;">
-    <a href="/" class="read-more">&larr; Back to Home</a>
+<div style="text-align: center; margin-top: 4rem; display: flex; justify-content: center; gap: 20px;">
+    <a href="/blogs/{{ blog.id }}" class="read-more">&larr; Back to {{ blog.name }}</a>
+    <a href="/admin/dashboard" class="read-more"
+        style="color: var(--accent-color); border-color: var(--accent-color);">Admin Dashboard &rarr;</a>
 </div>
 
 <script>

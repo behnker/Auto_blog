@@ -36,9 +36,15 @@ def load_blogs_config(force: bool = False) -> list[Dict[str, Any]]:
             records = table.all()
             for r in records:
                 f = r["fields"]
+                name = f.get("Name", "Unnamed Blog")
+                
+                # Skip invalid/empty records
+                if not name or name == "Unnamed Blog":
+                    continue
+                    
                 loaded_blogs.append({
                     "id": str(r["id"]), # Use Airtable Record ID as app ID
-                    "name": f.get("Name", "Unnamed Blog"),
+                    "name": name,
                     "domain": f.get("Domain", "localhost"),
                     "airtable": {
                         "base_id_env": "AIRTABLE_BASE_ID", # Hack: Reuse valid Env Var or store ID directly?
@@ -103,3 +109,48 @@ def get_base_id(blog_config: Dict[str, Any]) -> str:
     if not base_id:
         raise ValueError(f"Base ID not found in env var: {env_var_name}")
     return base_id
+
+# Agency Caching
+_AGENCIES_CACHE = []
+_AGENCIES_CACHE_TIME = 0
+
+def get_all_agencies(force: bool = False) -> list[Dict[str, Any]]:
+    """
+    Loads agencies from Airtable with caching.
+    """
+    global _AGENCIES_CACHE, _AGENCIES_CACHE_TIME
+    import time
+    
+    if not force and _AGENCIES_CACHE and (time.time() - _AGENCIES_CACHE_TIME < 60):
+        return _AGENCIES_CACHE
+        
+    loaded_agencies = []
+    try:
+        api_key = os.environ.get("AIRTABLE_API_KEY")
+        base_id = os.environ.get("AIRTABLE_BASE_ID")
+        
+        if api_key and base_id:
+            api = Api(api_key)
+            table = api.table(base_id, "Agencies")
+            records = table.all()
+            
+            for r in records:
+                f = r["fields"]
+                name = f.get("Name", "Unnamed")
+                # Filter invalid/placeholder agencies
+                if not name or name == "Unnamed" or name == "Unnamed Agency Blog":
+                    continue
+                    
+                loaded_agencies.append({
+                    "id": r["id"],
+                    "name": name,
+                    "website": f.get("Website", ""),
+                    "status": f.get("Status", "Active"),
+                    "blog_ids": f.get("Blogs", []) # Store Linked Blog IDs
+                })
+    except Exception as e:
+        print(f"Warning: Failed to load agencies: {e}")
+        
+    _AGENCIES_CACHE = loaded_agencies
+    _AGENCIES_CACHE_TIME = time.time()
+    return loaded_agencies

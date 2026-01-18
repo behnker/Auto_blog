@@ -12,6 +12,7 @@ from execution.models import BlogConfig
 from execution.admin_routes import router as admin_router
 
 app = FastAPI()
+# Reload for Admin Design
 app.include_router(admin_router)
 
 # Setup Templates
@@ -43,9 +44,31 @@ async def health_check():
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    blog = get_current_blog(request)
+    """
+    Landing Page: Menu of every published blog on the platform.
+    """
+    from execution.utils import load_blogs_config
+    
+    # Check if we are on a specific custom domain (optional future-proofing)
+    # host = request.headers.get("host", "").split(":")[0]
+    # For now, per user instruction, the landing page is the Menu.
+    
+    all_blogs = load_blogs_config()
+    
+    return templates.TemplateResponse("platform_index.html", {
+        "request": request,
+        "blogs": all_blogs,
+        "now": datetime.now()
+    })
+
+@app.get("/blogs/{blog_id}", response_class=HTMLResponse)
+async def read_blog_index(blog_id: str, request: Request):
+    """
+    Blog Page: Displays published posts for a specific blog.
+    """
+    blog = get_blog_config(blog_id)
     if not blog:
-        return templates.TemplateResponse("base.html", {"request": request, "blog": {"name": "Not Found"}, "now": datetime.now()})
+        raise HTTPException(status_code=404, detail="Blog not found")
 
     try:
         airtable = get_airtable_client()

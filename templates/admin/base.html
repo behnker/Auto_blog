@@ -6,12 +6,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auto_Blog Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/static/css/admin_glass.css">
-    {% block extra_head %}{% endblock %}
+    <link rel="stylesheet" href="/static/css/hypersonic.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'twinkle': 'twinkle 3s ease-in-out infinite',
+                        'scanline': 'scanline 2s linear infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 10s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
 <body>
-    <div class="app">
+    <div class="app relative z-10">
         <!-- SIDEBAR NAV -->
         <aside class="sidebar">
             <div class="brand">
@@ -35,14 +50,23 @@
                 <a href="/admin/voices" class="{% if '/admin/voices' in request.url.path %}active{% endif %}">
                     <span class="icon" aria-hidden="true">◈</span> Voices
                 </a>
+
+                {% if current_user.role == 'Admin' or current_user.role == 'Owner' %}
                 <a href="/admin/settings" class="{% if '/admin/settings' in request.url.path %}active{% endif %}">
                     <span class="icon" aria-hidden="true">⚙</span> Settings
                 </a>
+                {% endif %}
             </nav>
 
             <div class="meta" role="note" aria-label="Environment summary">
+                <div class="row">
+                    <span class="k">User</span>
+                    <span class="v flex items-center gap-2">
+                        <img src="{{ current_user.avatar }}" class="w-4 h-4 rounded-full">
+                        {{ current_user.role }}
+                    </span>
+                </div>
                 <div class="row"><span class="k">Tenant</span><span class="v">Agency Owner</span></div>
-                <div class="row"><span class="k">Primary Objective</span><span class="v">Shown (read-only)</span></div>
                 <div class="row"><span class="k">Contract Default</span><span class="v">v1.1 / v2.0</span></div>
             </div>
 
@@ -54,6 +78,34 @@
 
         <!-- MAIN -->
         <main class="main">
+            <!-- SCOPE BAR (UX-1) -->
+            <div class="scope-bar">
+                <div class="scope-group">
+                    <label>Agency</label>
+                    <div class="select-wrapper">
+                        <select onchange="window.location.href='?scope_agency='+this.value">
+                            <option value="all">All Agencies</option>
+                            {% for a in global_agencies %}
+                            <option value="{{ a.id }}">{{ a.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="scope-divider"></div>
+                <div class="scope-group">
+                    <label>Blog</label>
+                    <div class="select-wrapper">
+                        <select>
+                            <option value="all">All Blogs</option>
+                            {% for b in global_blogs %}
+                            <option value="{{ b.id }}">{{ b.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
             <div class="topbar">
                 <div class="titleBlock">
                     <div class="crumbs">Admin / {% block title %}{% endblock %}</div>
@@ -74,6 +126,21 @@
             </div>
         </main>
     </div>
+
+    <!-- Star Field Container (Fixed Background) -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#020205]">
+        <!-- Deep Nebula -->
+        <div
+            class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-900/10 rounded-full blur-[150px] animate-pulse-slow">
+        </div>
+        <div
+            class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-900/10 rounded-full blur-[150px] animate-pulse-slow delay-1000">
+        </div>
+        <!-- Stars injected here -->
+        <div id="star-field" class="absolute inset-0"></div>
+    </div>
+
+    <script src="/static/js/stars.js"></script>
 </body>
 
 </html>

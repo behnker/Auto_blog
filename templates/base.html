@@ -32,26 +32,7 @@
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <a href="/" class="brand">{{ blog.name }}</a>
-        </header>
-
-        <main>
-            {% block content %}{% endblock %}
-        </main>
-
-        <footer>
-            <div class="relative z-10 text-center text-gray-500 text-xs py-8">
-                &copy; {{ now.year }} {{ blog.name }}. All rights reserved.
-                <span class="mx-2">|</span>
-                <span class="mr-2">v2.0</span>
-                <a href="/admin/dashboard" class="hover:text-white transition-colors">SYS.admin</a>
-            </div>
-        </footer>
-    </div>
-
-    <!-- Star Field Container (Fixed Background) -->
+    <!-- Star Field Container (Fixed Background) - MOVED TO TOP -->
     <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#020205]">
         <!-- Deep Nebula -->
         <div
@@ -62,6 +43,26 @@
         </div>
         <!-- Stars injected here -->
         <div id="star-field" class="absolute inset-0"></div>
+    </div>
+
+    <!-- Main Container - Added relative z-10 to sit above stars -->
+    <div class="container relative z-10 flex flex-col min-h-screen">
+        <header>
+            <a href="/" class="brand">{{ blog.name }}</a>
+        </header>
+
+        <main class="flex-grow">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="mt-auto">
+            <div class="relative z-10 text-center text-gray-500 text-xs py-8">
+                &copy; {{ now.year }} {{ blog.name }}. All rights reserved.
+                <span class="mx-2">|</span>
+                <span class="mr-2 font-mono">v2.0</span>
+                <a href="/admin/dashboard" class="hover:text-white transition-colors">SYS.admin</a>
+            </div>
+        </footer>
     </div>
 
     <script src="/static/js/stars.js"></script>

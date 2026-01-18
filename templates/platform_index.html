@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% from "macros/sonic_icons.html" import sonic_icon %}
+
+{% block content %}
+<div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Header -->
+    <header class="mb-16 text-center space-y-4">
+        <h1
+            class="text-4xl md:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 uppercase drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+            Network <br /> Catalogue
+        </h1>
+        <div class="flex items-center justify-center gap-4 text-xs font-mono text-gray-500 tracking-[0.3em]">
+            <span>SYS.V.2.0</span>
+            <span class="w-1 h-1 bg-gray-500 rounded-full"></span>
+            <span>BLOG NODE INDEX</span>
+            <span class="w-1 h-1 bg-gray-500 rounded-full"></span>
+            <span>ACTIVE</span>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for blog in blogs %}
+        <!-- Assign random-ish colors based on ID length or consistent hashing if possible, default to Cyan -->
+        {% set hex = "#22d3ee" %}
+
+        <div class="group relative h-72 cursor-pointer perspective-1000">
+            <a href="/blogs/{{ blog.id }}" class="block h-full">
+                <!-- Glass Frame -->
+                <div class="absolute inset-0 rounded-xl overflow-hidden transition-all duration-500 border border-white/10 bg-[#0a0a0c]/50 backdrop-blur-md flex flex-col items-center justify-center group-hover:border-white/40 group-hover:bg-white/5"
+                    style="box-shadow: 0 0 0 transparent;" onmouseover="this.style.boxShadow='0 0 20px {{ hex }}20'"
+                    onmouseout="this.style.boxShadow='0 0 0 transparent'">
+
+                    <!-- Glow Lines -->
+                    <div
+                        class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-500">
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-500">
+                    </div>
+
+                    <!-- Icon (First Letter) -->
+                    <div
+                        class="relative w-24 h-24 mb-6 flex items-center justify-center border border-white/10 rounded-full bg-white/5">
+                        <span
+                            class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 font-mono">
+                            {{ blog.name[0] | upper }}
+                        </span>
+                    </div>
+
+                    <!-- Text -->
+                    <div class="relative z-10 text-center space-y-2 px-4">
+                        <h3
+                            class="text-sm font-bold tracking-wider uppercase font-mono transition-colors duration-300 text-gray-400 group-hover:text-white line-clamp-2">
+                            {{ blog.name }}
+                        </h3>
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full transition-colors duration-300"
+                                style="background-color: {{ hex }}"></span>
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-mono">
+                                {{ blog.domain }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Scanline -->
+                    <div
+                        class="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-gradient-to-b from-transparent via-white/10 to-transparent translate-y-[-100%] group-hover:animate-scanline">
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% else %}
+        <div class="col-span-full text-center text-gray-500 py-20 font-mono tracking-widest">
+            NO_SYSTEMS_DETECTED // OFFLINE
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

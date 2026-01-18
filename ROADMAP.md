@@ -34,6 +34,26 @@ Moving beyond "Prompt -> Post".
     *   **"AI Answer Gap"**: Identify if our post is missing from Perplexity/SearchGPT answers for its target keywords.
 *   **Topic Cluster Planner**: Identify gaps in the blog's topical authority.
 
+## 🌍 Phase 5: Global Expansion (ML-1 to ML-3)
+*   **ML-1: Infrastructure**:
+    *   **Configuration**: Blogs define `SupportedLanguages` (e.g., "en, es, fr").
+    *   **Inheritance**: Posts inherit this list, triggering automated translation/transcreation jobs.
+*   **ML-2: Localization Workflow**:
+    *   **Editor Assignments**: `Blog_Language_Editors` mapping (Language -> Editor).
+    *   **Queues**: Specialized "Spanish Queue" or "French Queue" for editors.
+*   **ML-3: Transcreation**:
+    *   Adapting "Voice Profiles" to target cultural idioms (Authenticity Localization).
+
+## 🏭 Phase 6: The Production Factory (UI/UX v1.2)
+*   **UX-1: Operational Core**:
+    *   **Persistent Scope Bar**: Global switcher for Agency / Blog / Language / Status.
+    *   **Work Queue**: Kanban-style status board (Tiles instead of Tables).
+    *   **Authenticity Panel**: Explicit inputs for Quote / Opinion / Proof (0/3 → 3/3 Badge).
+    *   **Roles & Policy**: Admin/Owner/Editor/Writer roles + Blog Approval Policies (A/B/C).
+*   **UX-2: Scale & Batching**:
+    *   **Batch Operations**: Bulk Approve, Bulk Publish, Bulk Assign.
+    *   **Saved Views**: "My Drafts", "Needs Authenticity", "High Stale Score".
+
 ## 🛠 Technical Enablers
 
 *   **Deep Research Agent**: Integration with `Tavily` or `Serper` to fetch live competitor data for the Brief.

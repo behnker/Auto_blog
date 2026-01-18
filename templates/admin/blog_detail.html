@@ -1,4 +1,5 @@
 {% extends "admin/base.html" %}
+{% from "macros/sonic_icons.html" import sonic_icon %}
 
 {% block title %}{{ blog.name }}{% endblock %}
 {% block header %}{{ blog.name }}{% endblock %}
@@ -38,72 +39,83 @@ endblock %}
         </div>
     </div>
 
-    <!-- Posts Table -->
-    <div class="card">
-        <div class="cardHeader">
-            <div>
-                <h3>Recent Posts</h3>
-                <p>Manage drafts, SEO optimization, and publishing.</p>
-            </div>
+    <!-- Posts Catalog (Hyper Sonic Grid) -->
+    <div class="space-y-6 mt-8">
+        <div class="flex items-center justify-between">
+            <h4 class="text-xl font-bold text-white tracking-widest uppercase">Post Catalog</h4>
+            <div class="h-[1px] flex-grow mx-6 bg-gradient-to-r from-white/10 to-transparent"></div>
         </div>
-        <div class="cardBody">
-            <table aria-label="Posts">
-                <thead>
-                    <tr>
-                        <th>Status</th>
-                        <th>Title / Slug</th>
-                        <th>Optimization (v2)</th>
-                        <th>Date</th>
-                        <th style="text-align:right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for post in posts %}
-                    <tr>
-                        <td>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for post in posts %}
+            {% set obj = post.fields.PrimaryObjective or "Awareness" %}
+            {% set hex = "#60a5fa" %}
+            {% if obj == 'Traffic' %}{% set hex = "#22d3ee" %}
+            {% elif obj == 'Leads' %}{% set hex = "#818cf8" %}
+            {% elif obj == 'Authority' %}{% set hex = "#d8b4fe" %}
+            {% elif obj == 'Revenue' %}{% set hex = "#fbbf24" %}
+            {% elif obj == 'Engagement' %}{% set hex = "#f87171" %}
+            {% elif obj == 'Informational' %}{% set hex = "#38bdf8" %}
+            {% elif obj == 'Transactional' %}{% set hex = "#4ade80" %}
+            {% endif %}
+
+            <div class="group relative h-72 cursor-pointer perspective-1000">
+                <!-- Wrapper for Edit Action or Detail View -->
+                <div class="absolute inset-0 rounded-xl overflow-hidden transition-all duration-500 border border-white/10 bg-[#0a0a0c]/50 backdrop-blur-md flex flex-col items-center justify-center group-hover:border-white/40 group-hover:bg-white/5"
+                    style="box-shadow: 0 0 0 transparent;" onmouseover="this.style.boxShadow='0 0 20px {{ hex }}20'"
+                    onmouseout="this.style.boxShadow='0 0 0 transparent'">
+
+                    <!-- Glow Lines -->
+                    <div
+                        class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-500">
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-500">
+                    </div>
+
+                    <!-- Icon -->
+                    <div class="relative w-24 h-24 mb-4 flex items-center justify-center">
+                        {{ sonic_icon(obj, hex) }}
+                    </div>
+
+                    <!-- Text -->
+                    <div class="relative z-10 text-center space-y-2 px-4 w-full">
+                        <h3
+                            class="text-sm font-bold tracking-wider uppercase font-mono transition-colors duration-300 text-gray-400 group-hover:text-white line-clamp-2">
+                            {{ post.fields.Title or 'Untitled' }}
+                        </h3>
+
+                        <!-- Status Badge -->
+                        <div class="flex items-center justify-center gap-2">
                             {% if post.fields.Status == 'Published' %}
-                            <span class="chip good"><span class="dot"></span> Published</span>
-                            {% elif post.fields.Status == 'DraftING' or post.fields.Status == 'Drafting' %}
-                            <span class="chip warn"><span class="dot"></span> Drafting</span>
+                            <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e]"></span>
+                            <span class="text-[10px] uppercase text-green-500">LIVE</span>
                             {% else %}
-                            <span class="chip">{{ post.fields.Status }}</span>
+                            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                            <span class="text-[10px] uppercase text-yellow-500">{{ post.fields.Status }}</span>
                             {% endif %}
-                        </td>
-                        <td>
-                            <strong>{{ post.fields.Title or 'Untitled' }}</strong><br>
-                            <span style="color:var(--muted); font-size:11px;">/{{ post.fields.Slug }}</span>
-                        </td>
-                        <td>
-                            {% if post.fields.ContractVersion == 'v2.0' %}
-                            {% if post.fields.QA_Score_GEO_AEO %}
-                            {% if post.fields.QA_Score_GEO_AEO > 80 %}
-                            <span style="color:var(--accent2); font-weight:600;">{{ post.fields.QA_Score_GEO_AEO
-                                }}/100</span>
-                            {% else %}
-                            <span style="color:var(--accent4); font-weight:600;">{{ post.fields.QA_Score_GEO_AEO
-                                }}/100</span>
-                            {% endif %}
-                            {% else %}
-                            <span style="color:var(--muted);">Pending QA</span>
-                            {% endif %}
-                            {% else %}
-                            <span style="color:var(--muted2);">v1.1</span>
-                            {% endif %}
-                        </td>
-                        <td style="color:var(--muted);">{{ post.fields.PublishedDate[:10] }}</td>
-                        <td style="text-align:right;">
-                            <button class="btn">Edit</button>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="5" style="text-align:center; padding: 20px; color:var(--muted);">
-                            No posts found.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </div>
+                    </div>
+
+                    <!-- Action Button (Appear on Hover) -->
+                    <div class="absolute bottom-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button
+                            class="px-4 py-1 text-xs font-mono border border-white/20 rounded hover:bg-white/10 text-white transition-colors">
+                            CMD:EDIT
+                        </button>
+                    </div>
+
+                    <!-- Scanline -->
+                    <div
+                        class="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-gradient-to-b from-transparent via-white/10 to-transparent translate-y-[-100%] group-hover:animate-scanline">
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-full py-12 text-center border bordered border-dashed border-white/10 rounded-xl">
+                <div class="text-gray-500 font-mono">NO_DATA // INITIATE_CREATION</div>
+            </div>
+            {% endfor %}
         </div>
     </div>
     </div>

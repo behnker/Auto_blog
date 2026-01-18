@@ -1,0 +1,94 @@
+Airtable Analysis Report
+========================
+
+Table: Agencies
+  Total Records: 4
+  Field Usage Stats:
+    - AdministratorEmail             :   3/4   ( 75.0%)
+    - Author_Profile                 :   3/4   ( 75.0%)
+    - Blogs                          :   4/4   (100.0%)
+    - Date Created                   :   4/4   (100.0%)
+    - Name                           :   3/4   ( 75.0%)
+    - Notes                          :   3/4   ( 75.0%)
+    - Status                         :   4/4   (100.0%)
+
+Table: Blogs
+  Total Records: 6
+  Field Usage Stats:
+    - Affiliate_Tag                  :   3/6   ( 50.0%)
+    - Agency                         :   5/6   ( 83.3%)
+    - Airtable_Base_ID               :   6/6   (100.0%)
+    - Authors                        :   3/6   ( 50.0%)
+    - CitationsDefault               :   4/6   ( 66.7%)
+    - DefaultIntent                  :   3/6   ( 50.0%)
+    - DefaultLanguage                :   4/6   ( 66.7%)
+    - DefaultMetricFocus             :   3/6   ( 50.0%)
+    - Domain                         :   5/6   ( 83.3%)
+    - GenerationContractDefault      :   4/6   ( 66.7%)
+    - HomepageURL                    :   3/6   ( 50.0%)
+    - Knowledge                      :   3/6   ( 50.0%)
+    - Name                           :   5/6   ( 83.3%)
+    - Notes                          :   3/6   ( 50.0%)
+    - Posts                          :   5/6   ( 83.3%)
+    - PrimaryObjective               :   3/6   ( 50.0%)
+    - RSSFeedURL                     :   3/6   ( 50.0%)
+    - SearchIntentDefault            :   3/6   ( 50.0%)
+    - SupportedLanguages             :   1/6   ( 16.7%)
+    - System_Prompt_Key              :   3/6   ( 50.0%)
+    - Table_Name                     :   5/6   ( 83.3%)
+
+Table: Posts
+  Total Records: 17
+  Field Usage Stats:
+    - Attachment Summary             :  17/17  (100.0%)
+    - Author_Profile                 :  16/17  ( 94.1%)
+    - Blog                           :  15/17  ( 88.2%)
+    - Brief_Data_JSON                :   4/17  ( 23.5%)
+    - Brief_Feedback                 :   2/17  ( 11.8%)
+    - Brief_Status                   :   6/17  ( 35.3%)
+    - CanonicalUrl                   :   6/17  ( 35.3%)
+    - CitationsEnabled               :   4/17  ( 23.5%)
+    - Citations_JSON                 :   6/17  ( 35.3%)
+    - Content                        :  16/17  ( 94.1%)
+    - ContractVersion                :   6/17  ( 35.3%)
+    - Entities_JSON                  :   6/17  ( 35.3%)
+    - FAQ_JSON                       :   6/17  ( 35.3%)
+    - GeneratorInput_JSON            :   3/17  ( 17.6%)
+    - GeneratorOutput_JSON           :   3/17  ( 17.6%)
+    - Glossary_JSON                  :   6/17  ( 35.3%)
+    - HowTo_JSON                     :   6/17  ( 35.3%)
+    - LLM_SnippetPack_JSON           :   6/17  ( 35.3%)
+    - MetaDescription                :   6/17  ( 35.3%)
+    - MetaTitle                      :   6/17  ( 35.3%)
+    - Metadata_JSON                  :   6/17  ( 35.3%)
+    - Name                           :  17/17  (100.0%)
+    - PostIntentNote                 :   6/17  ( 35.3%)
+    - PrimaryObjective (Lookup from Blog) :   9/17  ( 52.9%)
+    - PrimaryObjective_Text          :  17/17  (100.0%)
+    - PublishedDate                  :  16/17  ( 94.1%)
+    - QA_Report_JSON                 :   3/17  ( 17.6%)
+    - QA_Score_GEO_AEO               :   5/17  ( 29.4%)
+    - Schema_JSONLD                  :   6/17  ( 35.3%)
+    - SecondaryObjective             :   7/17  ( 41.2%)
+    - Slug                           :   7/17  ( 41.2%)
+    - Status                         :  17/17  (100.0%)
+    - TLDR                           :   6/17  ( 35.3%)
+    - Tables_JSON                    :   6/17  ( 35.3%)
+    - Tags                           :   6/17  ( 35.3%)
+    - Title                          :  17/17  (100.0%)
+    - Voice_Profile_Override         :  16/17  ( 94.1%)
+
+Table: Voice_Profiles
+  Total Records: 6
+  Field Usage Stats:
+    - Author_Profile                 :   4/6   ( 66.7%)
+    - Description                    :   5/6   ( 83.3%)
+    - Name                           :   5/6   ( 83.3%)
+    - Posts                          :   4/6   ( 66.7%)
+    - Profile Summary                :   6/6   (100.0%)
+    - Sample Excerpt                 :   3/6   ( 50.0%)
+    - Sample_Text                    :   3/6   ( 50.0%)
+    - Style_Guide                    :   3/6   ( 50.0%)
+    - Tags                           :   4/6   ( 66.7%)
+    - Tone_Instructions              :   5/6   ( 83.3%)
+  Error accessing table Author_Profiles: ('403 Client Error: Forbidden for url: https://api.airtable.com/v0/appiHeeBL7ZE71JFY/Author_Profiles', "{'type': 'INVALID_PERMISSIONS_OR_MODEL_NOT_FOUND', 'message': 'Invalid permissions, or the requested model was not found. Check that both your user and your token have the required permissions, and that the model names and/or ids are correct.'}")

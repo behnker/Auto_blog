@@ -90,6 +90,12 @@ textarea:focus {
     border-color: var(--accent);
 }
 
+/* Fix for Select Dropdowns in Dark Mode */
+select option {
+    background-color: var(--bg1);
+    color: var(--text);
+}
+
 /* Alias .form-group to .field for compatibility */
 .form-group,
 .field {
@@ -218,7 +224,54 @@ textarea:focus {
 
 /* Main */
 .main {
-    padding: 22px 22px 40px;
+    padding: 0 22px 40px;
+}
+
+/* UX-1 Scope Bar */
+.scope-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.scope-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.scope-group label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted2);
+    font-weight: 600;
+}
+
+.scope-divider {
+    width: 1px;
+    height: 24px;
+    background: rgba(255, 255, 255, .10);
+}
+
+.select-wrapper select {
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid rgba(255, 255, 255, .10);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    min-width: 160px;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+
+.select-wrapper select:hover {
+    background: rgba(255, 255, 255, .08);
+    border-color: rgba(255, 255, 255, .20);
 }
 
 .topbar {
