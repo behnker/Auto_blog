@@ -166,16 +166,23 @@ def generate_v2(blog_config, primary_obj, secondary, intent, voice_instructions=
             system=system_prompt,
             messages=[{"role": "user", "content": user_msg}]
         )
+        msg = client.messages.create(
+            model="claude-3-opus-20240229", # v2 gets the smart model
+            max_tokens=4000,
+            temperature=0.7,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_msg}]
+        )
         raw_json = msg.content[0].text
         # Save raw output for audit
         audit_output = raw_json
         
         # Parse
         post_data = PostOutputV2.parse_raw(raw_json)
-        return post_data, audit_output
+        return post_data, audit_output, system_prompt
     except Exception as e:
         print(f"v2 Generation Failed: {e}")
-        return None, None
+        return None, None, None
 
 def save_v2_to_airtable(blog_config, post_data: PostOutputV2, audit_in, audit_out):
     airtable = get_airtable_client()
@@ -288,12 +295,17 @@ def main():
         }
         
         # Pass voice_instr to generation
-        post_data, audit_out = generate_v2(blog, primary, args.secondary, args.intent, voice_instructions=voice_instr)
+        post_data, audit_out, system_prompt = generate_v2(blog, primary, args.secondary, args.intent, voice_instructions=voice_instr)
 
         if post_data:
+            # Capture System Prompt in Audit
+            audit_in["system_prompt_snapshot"] = system_prompt
+            
             if args.dry_run:
                 print("\n--- v2.0 DRY RUN OUTPUT ---")
                 print(audit_out)
+                print("--- SYSTEM PROMPT ---")
+                print(system_prompt[:500] + "...")
                 print("---------------------------")
             else:
                 rec = save_v2_to_airtable(blog, post_data, audit_in, audit_out)
