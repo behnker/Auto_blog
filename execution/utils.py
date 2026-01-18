@@ -154,3 +154,13 @@ def get_all_agencies(force: bool = False) -> list[Dict[str, Any]]:
     _AGENCIES_CACHE = loaded_agencies
     _AGENCIES_CACHE_TIME = time.time()
     return loaded_agencies
+
+def invalidate_agencies_cache():
+    global _AGENCIES_CACHE, _AGENCIES_CACHE_TIME
+    _AGENCIES_CACHE = []
+    _AGENCIES_CACHE_TIME = 0
+
+def invalidate_blogs_cache():
+    global _BLOGS_CACHE, _BLOGS_CACHE_TIME
+    _BLOGS_CACHE = []
+    _BLOGS_CACHE_TIME = 0

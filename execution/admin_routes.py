@@ -338,13 +338,18 @@ async def save_agency(request: Request,
         else:
              with open("debug_error.log", "a") as f:
                 f.write(f"ERROR: No Base ID found in env\n")
+             raise ValueError("AIRTABLE_BASE_ID not found")
+
+        # Invalidate Cache
+        from execution.utils import invalidate_agencies_cache
+        invalidate_agencies_cache()
                 
     except Exception as e:
         print(f"Error saving agency: {e}")
         error_msg = str(e)
         return RedirectResponse(url=f"/admin/agencies?error={error_msg}", status_code=status.HTTP_303_SEE_OTHER)
         
-    return RedirectResponse(url="/admin/agencies?success=Agency Saved", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url="/admin/agencies?success=Agency+Saved", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/agencies/{agency_id}/delete", response_class=RedirectResponse)
 async def delete_agency(request: Request, agency_id: str):
@@ -357,6 +362,11 @@ async def delete_agency(request: Request, agency_id: str):
         if base_id:
             table = api.table(base_id, "Agencies")
             table.delete(agency_id)
+            
+            # Invalidate Cache
+            from execution.utils import invalidate_agencies_cache
+            invalidate_agencies_cache()
+
     except Exception as e:
         print(f"Error deleting agency: {e}")
         
@@ -925,10 +935,11 @@ async def post_detail_editor(request: Request, blog_id: str, post_id: str):
         print(f"Error fetching post: {e}")
         raise HTTPException(status_code=404, detail="Post not found")
 
-    return templates.TemplateResponse("admin/post_detail.html", {
+    return render_admin(request, "admin/post_review.html", {
         "request": request,
         "blog": blog,
-        "post": post
+        "post": post,
+        "mode": "edit"
     })
 
 @router.post("/posts/save", response_class=RedirectResponse)
