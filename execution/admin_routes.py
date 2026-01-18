@@ -991,7 +991,7 @@ async def post_detail_editor(request: Request, blog_id: str, post_id: str):
         "mode": "edit"
     })
 
-@router.post("/posts/save", response_class=RedirectResponse)
+@router.post("/posts/save_content", response_class=RedirectResponse)
 async def save_post_content(request: Request,
                             blog_id: str = Form(...),
                             post_id: str = Form(...),
@@ -1006,7 +1006,7 @@ async def save_post_content(request: Request,
     blogs = load_blogs_config()
     blog = next((b for b in blogs if b["id"] == blog_id), None)
     if not blog:
-        raise HTTPException(status_code=404, detail="Blog not found")
+        return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}?error=Blog+Not+Found", status_code=status.HTTP_303_SEE_OTHER)
 
     try:
         api = get_airtable_client()
@@ -1018,17 +1018,20 @@ async def save_post_content(request: Request,
                 "Title": title,
                 "Content": content
             }
-            if slug:
-                fields["Slug"] = slug
-            if image:
-                fields["Image_URL"] = image # Ensure this field exists in Airtable Schema
-                
+            
+            if author_id:
+                 fields["Author"] = [author_id] # Linked Record
+            
+            # Preserve slug/image if passed (currently from readonly fields or hidden)
+            # For now, we only update Title, Content, Author as per requirements.
+            
             table.update(post_id, fields, typecast=True)
             
     except Exception as e:
         print(f"Error saving post: {e}")
+        return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}?error={e}", status_code=status.HTTP_303_SEE_OTHER)
         
-    return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}?success=Content+Saved", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/posts/revise", response_class=RedirectResponse)
 async def request_revision(request: Request, 
