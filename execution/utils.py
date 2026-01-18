@@ -164,3 +164,23 @@ def invalidate_blogs_cache():
     global _BLOGS_CACHE, _BLOGS_CACHE_TIME
     _BLOGS_CACHE = []
     _BLOGS_CACHE_TIME = 0
+
+def get_current_blog(request):
+    """
+    Determines the current blog based on the request hostname.
+    Falls back to the first configured blog if no match found (or for localhost).
+    """
+    host = request.headers.get("host", "").split(":")[0]
+    blogs = load_blogs_config()
+    
+    # 1. Try exact match
+    for blog in blogs:
+        if blog.get("domain") == host:
+            return blog
+            
+    # 2. Return first blog as default (Critical for single-blog setups or localhost dev)
+    if blogs:
+        return blogs[0]
+        
+    # 3. Fallback (Should typically not happen if config exists)
+    return {"id": "default", "name": "Auto_Blog", "airtable": {}}
