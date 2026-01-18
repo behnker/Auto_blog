@@ -87,29 +87,49 @@
                 <div class="h-[1px] bg-white/10 my-4"></div>
 
                 <div class="flex flex-col gap-3">
-                    {% if post.status == 'Draft' %}
-                    <button
-                        class="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase tracking-wide text-xs transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)]">
-                        Submit for Review
-                    </button>
+                    {% if post.status == 'Draft' or post.status == 'ChangesRequested' %}
+                    <form action="/admin/posts/status" method="POST">
+                        <input type="hidden" name="blog_id" value="{{ blog.id }}">
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <input type="hidden" name="status_action" value="submit">
+                        <button type="submit"
+                            class="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase tracking-wide text-xs transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)]">
+                            Submit for Review
+                        </button>
+                    </form>
                     {% elif post.status == 'InReview' %}
                     <div class="grid grid-cols-2 gap-3">
-                        <button
-                            class="py-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold uppercase tracking-wide text-xs">
-                            Request Changes
-                        </button>
-                        <button
-                            class="py-3 rounded-lg bg-green-600 hover:bg-green-500 text-white font-bold uppercase tracking-wide text-xs shadow-[0_0_20px_rgba(22,163,74,0.3)]">
-                            Approve
-                        </button>
+                        <form action="/admin/posts/status" method="POST" class="w-full">
+                            <input type="hidden" name="blog_id" value="{{ blog.id }}">
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <input type="hidden" name="status_action" value="request_changes">
+                            <button type="submit"
+                                class="w-full py-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold uppercase tracking-wide text-xs">
+                                Request Changes
+                            </button>
+                        </form>
+                        <form action="/admin/posts/status" method="POST" class="w-full">
+                            <input type="hidden" name="blog_id" value="{{ blog.id }}">
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <input type="hidden" name="status_action" value="approve">
+                            <button type="submit"
+                                class="w-full py-3 rounded-lg bg-green-600 hover:bg-green-500 text-white font-bold uppercase tracking-wide text-xs shadow-[0_0_20px_rgba(22,163,74,0.3)]">
+                                Approve
+                            </button>
+                        </form>
                     </div>
                     {% endif %}
 
-                    {% if post.status != 'Published' %}
-                    <button
-                        class="w-full py-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 font-bold uppercase tracking-wide text-[10px]">
-                        Save as Draft
-                    </button>
+                    {% if post.status != 'Draft' and post.status != 'Published' %}
+                    <form action="/admin/posts/status" method="POST">
+                        <input type="hidden" name="blog_id" value="{{ blog.id }}">
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <input type="hidden" name="status_action" value="draft">
+                        <button type="submit"
+                            class="w-full py-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 font-bold uppercase tracking-wide text-[10px]">
+                            Revert to Draft
+                        </button>
+                    </form>
                     {% endif %}
                 </div>
 
