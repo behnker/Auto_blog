@@ -968,8 +968,9 @@ async def post_detail_editor(request: Request, blog_id: str, post_id: str):
                 "primary_keyword": f.get("PrimaryKeyword", ""),
                 "meta_description": f.get("MetaDescription", ""),
                 "author_name": f.get("Author_Name", "Unassigned"),
-                "auth_quote": f.get("Authenticity_Quote", False), # Checkbox or text? Logic check
-                "qa_score": f.get("QA_Score_GEO_AEO", "")
+                "auth_quote": f.get("Authenticity_Quote", False), 
+                "qa_score": f.get("QA_Score_GEO_AEO", ""),
+                "input_audit": f.get("GeneratorInput_JSON", "{}")
             }
     except Exception as e:
         print(f"Error fetching post: {e}")
