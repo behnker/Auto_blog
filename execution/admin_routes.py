@@ -145,9 +145,11 @@ async def dashboard(request: Request):
         if base_id:
             table = api.table(base_id, "Posts")
             # Fetch fields needed for Tile View
+            # Fetch fields needed for Tile View
             # Note: "Blog" and "Author_Profile" are linked records (lists of IDs)
             fields = ["Title", "Status", "PublishedDate", "QA_Score_GEO_AEO", "Blog", "Author_Name", "Slug", "PrimaryObjective", "Generation_Contract"]
-            records = table.all(fields=fields, sort=["-CreatedTime"])
+            # Removed sort=["-CreatedTime"] to avoid 422 Error. Default order is acceptable (usually creation time).
+            records = table.all(fields=fields)
             
             for r in records:
                 f = r["fields"]
@@ -266,7 +268,7 @@ async def agencies_list(request: Request):
 async def new_agency_page(request: Request):
     if not is_authenticated(request):
         return RedirectResponse(url="/admin/login")
-    return templates.TemplateResponse("admin/agency_form.html", {"request": request, "agency": None})
+    return render_admin(request, "admin/agency_form.html", {"agency": None})
 
 @router.get("/agencies/{agency_id}/edit", response_class=HTMLResponse)
 async def edit_agency_page(request: Request, agency_id: str):
@@ -293,7 +295,7 @@ async def edit_agency_page(request: Request, agency_id: str):
     if not agency:
         raise HTTPException(status_code=404, detail="Agency not found")
 
-    return templates.TemplateResponse("admin/agency_form.html", {"request": request, "agency": agency})
+    return render_admin(request, "admin/agency_form.html", {"agency": agency})
 
 @router.post("/agencies/save", response_class=RedirectResponse)
 async def save_agency(request: Request, 
@@ -389,8 +391,7 @@ async def agency_detail(request: Request, agency_id: str):
         print(f"Error fetching agency detail: {e}")
         raise HTTPException(status_code=404, detail="Agency not found")
         
-    return templates.TemplateResponse("admin/agency_detail.html", {
-        "request": request, 
+    return render_admin(request, "admin/agency_detail.html", {
         "agency": agency,
         "blogs": blogs
     })
@@ -507,7 +508,7 @@ async def authors_list(request: Request):
     except Exception as e:
         print(f"Error fetching authors: {e}")
 
-    return templates.TemplateResponse("admin/authors.html", {"request": request, "authors": authors, "voices": voices_all})
+    return render_admin(request, "admin/authors.html", {"authors": authors, "voices": voices_all})
 
 @router.get("/voices", response_class=HTMLResponse)
 async def voices_list(request: Request):
@@ -532,13 +533,13 @@ async def voices_list(request: Request):
     except Exception as e:
         print(f"Error fetching voices: {e}")
 
-    return templates.TemplateResponse("admin/voices.html", {"request": request, "voices": voices})
+    return render_admin(request, "admin/voices.html", {"voices": voices})
 
 @router.get("/voices/new", response_class=HTMLResponse)
 async def new_voice(request: Request):
     if not is_authenticated(request):
         return RedirectResponse(url="/admin/login")
-    return templates.TemplateResponse("admin/voice_form.html", {"request": request, "voice": None})
+    return render_admin(request, "admin/voice_form.html", {"voice": None})
 
 @router.get("/voices/{voice_id}", response_class=HTMLResponse)
 async def voice_detail(request: Request, voice_id: str):
@@ -563,7 +564,7 @@ async def voice_detail(request: Request, voice_id: str):
         print(f"Error fetching voice: {e}")
         raise HTTPException(status_code=404, detail="Voice not found")
         
-    return templates.TemplateResponse("admin/voice_form.html", {"request": request, "voice": voice})
+    return render_admin(request, "admin/voice_form.html", {"voice": voice})
 
 @router.post("/voices/save", response_class=RedirectResponse)
 async def save_voice(request: Request, 

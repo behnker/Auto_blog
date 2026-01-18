@@ -59,6 +59,7 @@ async def read_root(request: Request):
         return templates.TemplateResponse("platform_index.html", {
             "request": request,
             "blogs": all_blogs,
+            "blog": {"name": "Auto_Blog Network"}, # Placeholder for base.html compatibility
             "now": datetime.now()
         })
     except Exception as e:
