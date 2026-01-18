@@ -69,9 +69,48 @@ def get_voice_instructions(blog_config, voice_id):
         print(f"Error fetching voice: {e}")
         return ""
 
+def fetch_knowledge_context(blog_config):
+    """Fetches Knowledge records linked to this blog."""
+    try:
+        airtable = get_airtable_client()
+        base_id = get_base_id(blog_config)
+        # Check if Knowledge table exists/accessible
+        table = airtable.table(base_id, "Knowledge")
+        # Filter where 'Blogs' field contains this blog's ID (or name? usually ID if linked)
+        # Airtable filtering on Linked Records can be tricky with formulas.
+        # Safest: formula=FIND('blog_id', ARRAYJOIN({Blogs}))
+        # But for MVP, maybe we iterate? Or assume simple Link.
+        # Let's try fetching all and filtering in python for safety if list is small.
+        records = table.all() 
+        
+        # Filter for this blog
+        relevant_knowledge = []
+        for r in records:
+            linked_blogs = r["fields"].get("Blogs", [])
+            # linked_blogs is list of record IDs. 
+            # blog_config['id'] is the record ID.
+            if blog_config['id'] in linked_blogs:
+                # Capture "Instructions" or "Description"
+                # User description said: "identity, core subject, writing style, detailed instructions"
+                # I'll check generic fields like "Instructions", "Content", "Context", "Name".
+                # For now concatenate Name + Content provided in generic "Instructions" field
+                identity = r["fields"].get("Identity", "")
+                instructions = r["fields"].get("Instructions", "")
+                name = r["fields"].get("Name", "")
+                relevant_knowledge.append(f"--- KNOWLEDGE: {name} ---\n{identity}\n{instructions}")
+                
+        return "\n".join(relevant_knowledge)
+        
+    except Exception as e:
+        print(f"Error fetching knowledge: {e}")
+        return ""
+
 def generate_v2(blog_config, primary_obj, secondary, intent, voice_instructions=""):
     """v2.0 Search-Optimised Generation"""
     print("--- Starting v2.0 Search-Optimised Generation ---")
+    
+    # 0. Fetch Knowledge
+    knowledge_context = fetch_knowledge_context(blog_config)
     
     # 1. Build v2 Prompt (could be separate file or constructed)
     prompt_path = os.path.join("directives", "prompts", f"{blog_config['id']}_v2.md")
@@ -90,8 +129,17 @@ def generate_v2(blog_config, primary_obj, secondary, intent, voice_instructions=
     {voice_instructions}
     """
     
+    # Inject Knowledge
+    knowledge_section = ""
+    if knowledge_context:
+        knowledge_section = f"""
+    KNOWLEDGE BASE & CONTEXT:
+    {knowledge_context}
+    """
+
     system_prompt = f"""{base_sys}
     {voice_section}
+    {knowledge_section}
     OBJECTIVES:
     - Primary: {primary_obj}
     - Secondary: {secondary}
