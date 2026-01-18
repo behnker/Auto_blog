@@ -43,7 +43,7 @@
         {% endif %}
 
         <div class="group relative h-72 cursor-pointer perspective-1000">
-            <a href="/post/{{ post.fields.Slug }}" class="block h-full">
+            <a href="/post/{{ post.fields.Slug | urlencode }}" class="block h-full">
                 <!-- Glass Frame -->
                 <div class="absolute inset-0 rounded-xl overflow-hidden transition-all duration-500 border border-white/10 bg-[#0a0a0c]/50 backdrop-blur-md flex flex-col items-center justify-center group-hover:border-white/40 group-hover:bg-white/5"
                     style="box-shadow: 0 0 0 transparent;" onmouseover="this.style.boxShadow='0 0 20px {{ hex }}20'"

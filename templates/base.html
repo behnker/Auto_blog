@@ -47,8 +47,11 @@
 
     <!-- Main Container - Added relative z-10 to sit above stars -->
     <div class="container relative z-10 flex flex-col min-h-screen">
-        <header>
+        <header class="flex justify-between items-center py-6">
             <a href="/" class="brand">{{ blog.name }}</a>
+            <a href="/admin/dashboard"
+                class="text-xs font-mono text-gray-500 hover:text-white tracking-widest uppercase transition-colors">Admin
+                Dashboard</a>
         </header>
 
         <main class="flex-grow">
@@ -60,7 +63,7 @@
                 &copy; {{ now.year }} {{ blog.name }}. All rights reserved.
                 <span class="mx-2">|</span>
                 <span class="mr-2 font-mono">v2.0</span>
-                <a href="/admin/dashboard" class="hover:text-white transition-colors">SYS.admin</a>
+                <a href="/admin/dashboard" class="hover:text-white transition-colors">Admin Dashboard</a>
             </div>
         </footer>
     </div>
