@@ -598,6 +598,69 @@ async def save_voice(request: Request,
         
     return RedirectResponse(url="/admin/voices", status_code=status.HTTP_303_SEE_OTHER)
 
+@router.get("/posts/new", response_class=RedirectResponse)
+async def create_draft_post(request: Request, blog_id: Optional[str] = None):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login")
+
+    # If no blog_id, pick first from user config
+    # In future, show a modal to select blog if multiple.
+    from execution.utils import load_blogs_config
+    all_blogs = load_blogs_config()
+    
+    if not blog_id and all_blogs:
+        blog_id = all_blogs[0]["id"]
+    
+    if not blog_id:
+        return RedirectResponse("/admin/dashboard?error=No+Blog+Configured", status_code=status.HTTP_303_SEE_OTHER)
+
+    try:
+        from execution.utils import get_blog_config, get_base_id
+        api = get_airtable_client()
+        blog = get_blog_config(blog_id)
+        if not blog:
+             return RedirectResponse("/admin/dashboard?error=Blog+Not+Found", status_code=status.HTTP_303_SEE_OTHER)
+
+        base_id = get_base_id(blog)
+        table = api.table(base_id, blog["airtable"]["table_name"])
+        
+        # Create Empty Draft
+        from datetime import datetime
+        record = table.create({
+            "Title": "Untitled Draft",
+            "Status": "Draft",
+            "Author_Name": "Unassigned", # Could map to current_user
+            "Content": "Start writing here...",
+            "CreatedTime": datetime.now().isoformat()
+        }, typecast=True)
+        
+        return RedirectResponse(f"/admin/blogs/{blog_id}/posts/{record['id']}", status_code=status.HTTP_303_SEE_OTHER)
+        
+    except Exception as e:
+         import traceback
+         print(f"Error creating draft: {e}\n{traceback.format_exc()}")
+         return RedirectResponse(f"/admin/dashboard?error=Creation+Failed:+{e}", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/posts/delete", response_class=RedirectResponse)
+async def delete_post_action(request: Request, blog_id: str = Form(...), post_id: str = Form(...)):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    try:
+        from execution.utils import get_blog_config, get_base_id
+        api = get_airtable_client()
+        blog = get_blog_config(blog_id)
+        if blog:
+            base_id = get_base_id(blog)
+            table = api.table(base_id, blog["airtable"]["table_name"])
+            table.delete(post_id)
+            
+    except Exception as e:
+        print(f"Error deleting post: {e}")
+        return RedirectResponse(f"/admin/blogs/{blog_id}/posts/{post_id}?error=Delete+Failed", status_code=status.HTTP_303_SEE_OTHER)
+
+    return RedirectResponse("/admin/dashboard?success=Post+Deleted", status_code=status.HTTP_303_SEE_OTHER)
+
 @router.post("/voices/{voice_id}/delete", response_class=RedirectResponse)
 async def delete_voice(request: Request, voice_id: str):
     if not is_authenticated(request):
