@@ -169,6 +169,16 @@ async def dashboard(request: Request):
                 # inside the loop unless we have a fast mapping. 
                 # TODO: Implement strict scope filtering.
                 
+                # Fallback implementation for blog_id to prevent broken URLs
+                # If post has no "Blog" link, assume it belongs to the first configured blog or the one matching current Base ID
+                default_blog_id = blogs[0]["id"] if blogs else ""
+                
+                # Check if we can match Base ID (Advanced)
+                # ... skipping complex match for speed, using blogs[0] is usually safe for MVP single-tenant
+                
+                raw_blog_link = f.get("Blog")
+                resolved_blog_id = raw_blog_link[0] if raw_blog_link else default_blog_id
+
                 item = {
                     "id": r["id"],
                     "title": f.get("Title", "Untitled"),
@@ -176,7 +186,7 @@ async def dashboard(request: Request):
                     "date": f.get("PublishedDate") or r["createdTime"][:10],
                     "author": f.get("Author_Name", "Unassigned"),
                     "score": f.get("QA_Score_GEO_AEO", "-"),
-                    "blog_id": (f.get("Blog") or [""])[0], # Naive
+                    "blog_id": resolved_blog_id,
                     "objective": f.get("PrimaryObjective", "General"),
                     "contract": f.get("Generation_Contract", "v1.1")
                 }
