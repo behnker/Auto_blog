@@ -446,6 +446,49 @@ async def save_post_content(
         
     return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}", status_code=status.HTTP_303_SEE_OTHER)
 
+@router.post("/posts/status", response_class=RedirectResponse)
+async def update_post_status(request: Request, 
+                             blog_id: str = Form(...), 
+                             post_id: str = Form(...), 
+                             status_action: str = Form(...)):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    from execution.utils import load_blogs_config
+    blogs = load_blogs_config()
+    blog = next((b for b in blogs if b["id"] == blog_id), None)
+    if not blog:
+        return RedirectResponse(url=f"/admin/dashboard?error=Blog+Not+Found", status_code=status.HTTP_303_SEE_OTHER)
+
+    try:
+        from execution.utils import get_base_id
+        api = get_airtable_client()
+        base_id = get_base_id(blog)
+        if base_id:
+            table = api.table(base_id, blog["airtable"]["table_name"])
+            
+            new_status = "Draft"
+            if status_action == "submit":
+                new_status = "InReview"
+            elif status_action == "approve":
+                new_status = "Published" 
+            elif status_action == "request_changes":
+                new_status = "ChangesRequested"
+            elif status_action == "draft":
+                new_status = "Draft"
+                
+            fields = {"Status": new_status}
+            if status_action == "approve":
+                from datetime import datetime
+                fields["PublishedDate"] = datetime.now().strftime("%Y-%m-%d")
+
+            table.update(post_id, fields, typecast=True)
+            
+    except Exception as e:
+        print(f"Error updating status: {e}")
+        
+    return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}", status_code=status.HTTP_303_SEE_OTHER)
+
 @router.get("/authors", response_class=HTMLResponse)
 async def authors_list(request: Request):
     if not is_authenticated(request):
