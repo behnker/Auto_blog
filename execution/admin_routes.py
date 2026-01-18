@@ -439,12 +439,16 @@ async def save_post_content(
         # Simple Logic to update status if needed? Spec says "Save as Draft" button does this.
         # This route is generic "Save".
         
+        if author_id:
+             fields["Author"] = [author_id] # Linked Record
+
         table.update(post_id, fields, typecast=True)
         
     except Exception as e:
         print(f"Error saving post content: {e}")
+        return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}?error={e}", status_code=status.HTTP_303_SEE_OTHER)
         
-    return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}?success=Content+Saved", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/posts/status", response_class=RedirectResponse)
 async def update_post_status(request: Request, 
@@ -959,10 +963,21 @@ async def post_detail_editor(request: Request, blog_id: str, post_id: str):
         print(f"Error fetching post: {e}")
         raise HTTPException(status_code=404, detail="Post not found")
 
+    # Fetch Authors for Dropdown
+    authors = []
+    try:
+        if base_id:
+            authors_table = api.table(base_id, "Author_Profile")
+            authors_records = authors_table.all()
+            authors = [{"id": a["id"], "name": a["fields"].get("Author_Name", "Unnamed")} for a in authors_records]
+    except Exception as e:
+        print(f"Error fetching authors: {e}")
+
     return render_admin(request, "admin/post_review.html", {
         "request": request,
         "blog": blog,
         "post": post,
+        "authors": authors,
         "mode": "edit"
     })
 
@@ -972,6 +987,7 @@ async def save_post_content(request: Request,
                             post_id: str = Form(...),
                             title: str = Form(...),
                             content: str = Form(...),
+                            author_id: Optional[str] = Form(None),
                             slug: Optional[str] = Form(None),
                             image: Optional[str] = Form(None)):
     if not is_authenticated(request):

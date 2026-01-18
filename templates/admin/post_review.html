@@ -24,7 +24,7 @@
             <div
                 class="prose prose-invert max-w-none prose-p:text-gray-300 prose-headings:text-white prose-a:text-blue-400">
                 <!-- Using a simple textarea for quick editing in this Phase, or markdown render -->
-                <form method="POST" action="/admin/posts/save_content">
+                <form id="editor-form" method="POST" action="/admin/posts/save_content">
                     <input type="hidden" name="blog_id" value="{{ blog.id }}">
                     <input type="hidden" name="post_id" value="{{ post.id }}">
 
@@ -80,8 +80,28 @@
                     <span class="text-white font-bold">{{ post.status }}</span>
                 </div>
                 <div class="flex justify-between items-center text-sm text-gray-400">
+                    {% if request.query_params.success %}
+                    <div
+                        class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-xl z-50 animate-bounce">
+                        ✅ {{ request.query_params.success }}
+                    </div>
+                    {% endif %}
+                    {% if request.query_params.error %}
+                    <div
+                        class="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded shadow-xl z-50 animate-pulse">
+                        ❌ {{ request.query_params.error }}
+                    </div>
+                    {% endif %}
+
                     <span>Assigned Author</span>
-                    <span class="text-white">{{ post.author_name or 'Unassigned' }}</span>
+                    <select name="author_id" form="editor-form"
+                        class="bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-blue-500">
+                        <option value="">-- Unassigned --</option>
+                        {% for a in authors %}
+                        <option value="{{ a.id }}" {% if post.author_name==a.name %}selected{% endif %}>{{ a.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
                 </div>
 
                 <div class="h-[1px] bg-white/10 my-4"></div>
