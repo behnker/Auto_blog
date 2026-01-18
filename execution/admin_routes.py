@@ -924,11 +924,13 @@ async def create_post(request: Request, blog_id: str, title: str = Form(...), vo
             fields = {
                 "Title": title,
                 "Status": "Draft",
-                # "GenerationContractDefault": "v2.0" # Optional: set default
+                "Blog": [blog["id"]], # Link to Parent Blog
+                # "GenerationContractDefault": "v2.0" 
             }
             if voice_id:
                 fields["Voice_Profile_Override"] = [voice_id]
-                
+            
+            # Create Record
             table.create(fields, typecast=True)
             
     except Exception as e:
