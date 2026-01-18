@@ -7,8 +7,8 @@
         <h2 class="text-xl font-bold text-white tracking-wide">Post Studio</h2>
     </div>
     <div class="actions">
-        <span class="text-xs font-mono text-gray-500 uppercase tracking-widest mr-4">{{ post.fields.Status }}</span>
-        <a href="/post/{{ post.fields.Slug }}" target="_blank" class="btn secondary">Preview</a>
+        <span class="text-xs font-mono text-gray-500 uppercase tracking-widest mr-4">{{ post.status }}</span>
+        <a href="/post/{{ post.slug }}" target="_blank" class="btn secondary">Preview</a>
     </div>
 </div>
 
@@ -19,7 +19,7 @@
 
         <!-- Main Content Editor (Preview Mode for now) -->
         <div class="glass-panel p-8 rounded-xl border border-white/10 bg-[#0a0a0c]/50 backdrop-blur-md">
-            <h1 class="text-3xl font-black text-white mb-6 leading-tight">{{ post.fields.Title }}</h1>
+            <h1 class="text-3xl font-black text-white mb-6 leading-tight">{{ post.title }}</h1>
 
             <div
                 class="prose prose-invert max-w-none prose-p:text-gray-300 prose-headings:text-white prose-a:text-blue-400">
@@ -30,7 +30,7 @@
 
                     <label class="block text-xs font-mono text-gray-500 uppercase mb-2">Content (Markdown)</label>
                     <textarea name="content"
-                        class="w-full h-[600px] bg-[#050507] border border-white/10 rounded-lg p-4 text-gray-300 font-mono text-sm focus:border-blue-500/50 outline-none resize-none leading-relaxed custom-scrollbar">{{ post.fields.Content }}</textarea>
+                        class="w-full h-[600px] bg-[#050507] border border-white/10 rounded-lg p-4 text-gray-300 font-mono text-sm focus:border-blue-500/50 outline-none resize-none leading-relaxed custom-scrollbar">{{ post.content }}</textarea>
 
                     <div class="flex justify-end mt-4">
                         <button type="submit" class="btn text-xs">Save Content</button>
@@ -45,7 +45,7 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs text-gray-500 mb-1">Slug</label>
-                    <input value="{{ post.fields.Slug }}"
+                    <input value="{{ post.slug }}"
                         class="w-full bg-black/20 border border-white/10 rounded px-3 py-2 text-sm text-gray-300"
                         readonly>
                 </div>
