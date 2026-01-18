@@ -637,9 +637,7 @@ async def create_draft_post(request: Request, blog_id: Optional[str] = None):
         record = table.create({
             "Title": "Untitled Draft",
             "Status": "Draft",
-            "Author_Name": "Unassigned", # Could map to current_user
-            "Content": "Start writing here...",
-            "CreatedTime": datetime.now().isoformat()
+            "Content": "Start writing here..."
         }, typecast=True)
         
         return RedirectResponse(f"/admin/blogs/{blog_id}/posts/{record['id']}", status_code=status.HTTP_303_SEE_OTHER)
