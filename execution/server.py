@@ -45,29 +45,41 @@ async def health_check():
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     """
-    Landing Page: Menu of every published blog on the platform.
+    Landing Page: Aggregates published posts from ALL configured blogs.
     """
     try:
-        from execution.utils import load_blogs_config
-        
-        # Check if we are on a specific custom domain (optional future-proofing)
-        # host = request.headers.get("host", "").split(":")[0]
-        # For now, per user instruction, the landing page is the Menu.
+        from execution.utils import load_blogs_config, get_airtable_client, get_base_id
         
         all_blogs = load_blogs_config()
+        all_posts = []
         
-        return templates.TemplateResponse("platform_index.html", {
+        api = get_airtable_client()
+        
+        for blog in all_blogs:
+            try:
+                base_id = get_base_id(blog)
+                table = api.table(base_id, blog["airtable"]["table_name"])
+                # Fetch only published posts
+                records = table.all(sort=["-PublishedDate"], formula="{Status}='Published'")
+                # Tag records with source blog (optional, for template if needed)
+                # for r in records: r["_blog_name"] = blog["name"] 
+                all_posts.extend(records)
+            except Exception as e:
+                print(f"Error fetching posts for blog {blog['name']}: {e}")
+
+        # Sort combined list by date (assuming ISO format strings or relying on checking fields)
+        # For MVP simple concatenation is often fine, or simple lambda sort
+        # all_posts.sort(key=lambda x: x["fields"].get("PublishedDate", ""), reverse=True)
+
+        return templates.TemplateResponse("index.html", {
             "request": request,
-            "blogs": all_blogs,
-            "blog": {"name": "Auto_Blog Network"}, # Placeholder for base.html compatibility
+            "blog": {"name": "Auto_Blog Network"}, # Generic Name
+            "posts": all_posts,
             "now": datetime.now()
         })
     except Exception as e:
         import traceback
-        error_details = traceback.format_exc()
-        print(f"CRITICAL ERROR in read_root: {e}\n{error_details}")
-        
-        # Return a simple error page
+        print(f"CRITICAL ERROR in read_root: {e}\n{traceback.format_exc()}")
         return HTMLResponse(content=f"<h1>Internal Server Error</h1><pre>{e}</pre>", status_code=500)
 
 @app.get("/blogs/{blog_id}", response_class=HTMLResponse)
@@ -86,7 +98,6 @@ async def read_blog_index(blog_id: str, request: Request):
             airtable = get_airtable_client()
             base_id = get_base_id(blog)
             table = airtable.table(base_id, blog["airtable"]["table_name"])
-            # Fetch only published posts
             records = table.all(sort=["-PublishedDate"], formula="{Status}='Published'")
         except Exception as e:
             print(f"Airtable Error: {e}")
@@ -101,23 +112,61 @@ async def read_blog_index(blog_id: str, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        import traceback
-        print(f"CRITICAL ERROR in read_blog_index: {e}\n{traceback.format_exc()}")
-        return HTMLResponse(content=f"<h1>Internal Server Error</h1><pre>{e}</pre>", status_code=500)
+         return HTMLResponse(content=f"<h1>Internal Server Error</h1><pre>{e}</pre>", status_code=500)
 
 @app.get("/post/{slug}", response_class=HTMLResponse)
 async def read_post(slug: str, request: Request):
     try:
-        from execution.utils import get_current_blog, get_base_id, get_airtable_client
-        blog = get_current_blog(request)
+        from execution.utils import load_blogs_config, get_base_id, get_airtable_client
         
-        try:
-            airtable = get_airtable_client()
-            base_id = get_base_id(blog)
-            table = airtable.table(base_id, blog["airtable"]["table_name"])
-            # Find record by slug
-            # Note: Airtable formula string values should be single-quoted
-            records = table.all(formula=f"{{Slug}}='{slug}'")
+        # Search ALL blogs for this slug
+        # This handles the "Unified Landing Page" scenario where we don't know the source blog
+        blogs = load_blogs_config()
+        airtable = get_airtable_client()
+        
+        found_record = None
+        found_blog = None
+        
+        for blog in blogs:
+            try:
+                base_id = get_base_id(blog)
+                table = airtable.table(base_id, blog["airtable"]["table_name"])
+                # Find record by slug
+                records = table.all(formula=f"{{Slug}}='{slug}'")
+                if records:
+                    found_record = records[0]
+                    found_blog = blog
+                    break
+            except Exception as inner_e:
+                continue # Try next blog
+        
+        if not found_record:
+             # Try decoding slug if it had special chars? 
+             # Or just not found
+             return HTMLResponse(content="<h1>404 - Post Not Found</h1>", status_code=404)
+             
+        # Flatten for template
+        post = {
+            "title": found_record["fields"].get("Title", "Untitled"),
+            "content": found_record["fields"].get("Content", ""),
+            "slug": found_record["fields"].get("Slug", ""),
+            "image": found_record["fields"].get("Image_URL", ""),
+            "author_name": found_record["fields"].get("Author_Name", "Unassigned"),
+            "published_date": found_record["fields"].get("PublishedDate", ""),
+            "fields": found_record["fields"] # Keep raw fields accessible
+        }
+        
+        return templates.TemplateResponse("post.html", {
+            "request": request,
+            "blog": found_blog,
+            "post": post,
+            "now": datetime.now()
+        })
+        
+    except Exception as e:
+        import traceback
+        print(f"Error reading post: {e}\n{traceback.format_exc()}")
+        return HTMLResponse(content=f"<h1>Internal Server Error</h1><pre>{e}</pre>", status_code=500)
             if not records:
                  # Try fallback for hash-based slugs if accidentally saved that way or URL encoding
                  records = table.all(formula=f"{{Slug}}='{slug.replace('#', '')}'")
