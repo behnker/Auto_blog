@@ -64,7 +64,21 @@ def get_voice_instructions(blog_config, voice_id):
         base_id = get_base_id(blog_config)
         table = airtable.table(base_id, "Voice_Profiles")
         record = table.get(voice_id)
-        return record["fields"].get("Tone_Instructions", "")
+        fields = record["fields"]
+        
+        tone = fields.get("Tone_Instructions", "")
+        style = fields.get("Style_Guide", "")
+        sample = fields.get("Sample_Text", "")
+        
+        instructions = []
+        if tone:
+            instructions.append(f"TONE INSTRUCTIONS:\n{tone}")
+        if style:
+            instructions.append(f"STYLE GUIDE:\n{style}")
+        if sample:
+            instructions.append(f"SAMPLE EXCERPT FOR EMULATION:\n{sample}")
+            
+        return "\n\n".join(instructions)
     except Exception as e:
         print(f"Error fetching voice: {e}")
         return ""
