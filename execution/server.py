@@ -47,74 +47,101 @@ async def read_root(request: Request):
     """
     Landing Page: Menu of every published blog on the platform.
     """
-    from execution.utils import load_blogs_config
-    
-    # Check if we are on a specific custom domain (optional future-proofing)
-    # host = request.headers.get("host", "").split(":")[0]
-    # For now, per user instruction, the landing page is the Menu.
-    
-    all_blogs = load_blogs_config()
-    
-    return templates.TemplateResponse("platform_index.html", {
-        "request": request,
-        "blogs": all_blogs,
-        "now": datetime.now()
-    })
+    try:
+        from execution.utils import load_blogs_config
+        
+        # Check if we are on a specific custom domain (optional future-proofing)
+        # host = request.headers.get("host", "").split(":")[0]
+        # For now, per user instruction, the landing page is the Menu.
+        
+        all_blogs = load_blogs_config()
+        
+        return templates.TemplateResponse("platform_index.html", {
+            "request": request,
+            "blogs": all_blogs,
+            "now": datetime.now()
+        })
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"CRITICAL ERROR in read_root: {e}\n{error_details}")
+        
+        # Return a simple error page
+        return HTMLResponse(content=f"<h1>Internal Server Error</h1><pre>{e}</pre>", status_code=500)
 
 @app.get("/blogs/{blog_id}", response_class=HTMLResponse)
 async def read_blog_index(blog_id: str, request: Request):
     """
     Blog Page: Displays published posts for a specific blog.
     """
-    blog = get_blog_config(blog_id)
-    if not blog:
-        raise HTTPException(status_code=404, detail="Blog not found")
-
     try:
-        airtable = get_airtable_client()
-        base_id = get_base_id(blog)
-        table = airtable.table(base_id, blog["airtable"]["table_name"])
-        # Fetch only published posts
-        records = table.all(sort=["-PublishedDate"], formula="{Status}='Published'")
-    except Exception as e:
-        print(f"Airtable Error: {e}")
-        records = []
+        from execution.utils import get_blog_config, get_base_id, get_airtable_client
+        
+        blog = get_blog_config(blog_id)
+        if not blog:
+            raise HTTPException(status_code=404, detail="Blog not found")
 
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "blog": blog,
-        "posts": records,
-        "now": datetime.now()
-    })
+        try:
+            airtable = get_airtable_client()
+            base_id = get_base_id(blog)
+            table = airtable.table(base_id, blog["airtable"]["table_name"])
+            # Fetch only published posts
+            records = table.all(sort=["-PublishedDate"], formula="{Status}='Published'")
+        except Exception as e:
+            print(f"Airtable Error: {e}")
+            records = []
+
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "blog": blog,
+            "posts": records,
+            "now": datetime.now()
+        })
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print(f"CRITICAL ERROR in read_blog_index: {e}\n{traceback.format_exc()}")
+        return HTMLResponse(content=f"<h1>Internal Server Error</h1><pre>{e}</pre>", status_code=500)
 
 @app.get("/post/{slug}", response_class=HTMLResponse)
 async def read_post(slug: str, request: Request):
-    blog = get_current_blog(request)
-    
     try:
-        airtable = get_airtable_client()
-        base_id = get_base_id(blog)
-        table = airtable.table(base_id, blog["airtable"]["table_name"])
-        # Find record by slug
-        # Note: Airtable formula string values should be single-quoted
-        records = table.all(formula=f"{{Slug}}='{slug}'")
-        if not records:
-             # Try fallback for hash-based slugs if accidentally saved that way or URL encoding
-             records = table.all(formula=f"{{Slug}}='{slug.replace('#', '')}'")
+        from execution.utils import get_current_blog, get_base_id, get_airtable_client
+        blog = get_current_blog(request)
+        
+        try:
+            airtable = get_airtable_client()
+            base_id = get_base_id(blog)
+            table = airtable.table(base_id, blog["airtable"]["table_name"])
+            # Find record by slug
+            # Note: Airtable formula string values should be single-quoted
+            records = table.all(formula=f"{{Slug}}='{slug}'")
+            if not records:
+                 # Try fallback for hash-based slugs if accidentally saved that way or URL encoding
+                 records = table.all(formula=f"{{Slug}}='{slug.replace('#', '')}'")
 
-        if not records:
-             raise HTTPException(status_code=404, detail="Post not found")
-        post = records[0]
+            if not records:
+                 raise HTTPException(status_code=404, detail="Post not found")
+            post = records[0]
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"Error fetching post: {e}")
+            raise HTTPException(status_code=500, detail="Database Error")
+
+        return templates.TemplateResponse("post.html", {
+            "request": request,
+            "blog": blog,
+            "post": post,
+            "now": datetime.now()
+        })
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"Error fetching post: {e}")
-        raise HTTPException(status_code=500, detail="Database Error")
-
-    return templates.TemplateResponse("post.html", {
-        "request": request,
-        "blog": blog,
-        "post": post,
-        "now": datetime.now()
-    })
+        import traceback
+        print(f"CRITICAL ERROR in read_post: {e}\n{traceback.format_exc()}")
+        return HTMLResponse(content=f"<h1>Internal Server Error</h1><pre>{e}</pre>", status_code=500)
 
 @app.post("/api/cron/generate")
 async def trigger_generation(request: Request, background_tasks: BackgroundTasks, blog_id: str, token: str):
