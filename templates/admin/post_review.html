@@ -51,7 +51,7 @@
                 </div>
                 <div>
                     <label class="block text-xs text-gray-500 mb-1">Primary Keyword</label>
-                    <input value="{{ post.fields.PrimaryKeyword }}"
+                    <input value="{{ post.primary_keyword }}"
                         class="w-full bg-black/20 border border-white/10 rounded px-3 py-2 text-sm text-gray-300"
                         readonly>
                 </div>
@@ -59,7 +59,7 @@
                     <label class="block text-xs text-gray-500 mb-1">Meta Description</label>
                     <textarea
                         class="w-full bg-black/20 border border-white/10 rounded px-3 py-2 text-sm text-gray-300 h-20"
-                        readonly>{{ post.fields.MetaDescription }}</textarea>
+                        readonly>{{ post.meta_description }}</textarea>
                 </div>
             </div>
         </div>
@@ -77,22 +77,22 @@
             <div class="space-y-4">
                 <div class="flex justify-between items-center text-sm text-gray-400">
                     <span>Current Status</span>
-                    <span class="text-white font-bold">{{ post.fields.Status }}</span>
+                    <span class="text-white font-bold">{{ post.status }}</span>
                 </div>
                 <div class="flex justify-between items-center text-sm text-gray-400">
                     <span>Assigned Author</span>
-                    <span class="text-white">{{ post.fields.Author_Name or 'Unassigned' }}</span>
+                    <span class="text-white">{{ post.author_name or 'Unassigned' }}</span>
                 </div>
 
                 <div class="h-[1px] bg-white/10 my-4"></div>
 
                 <div class="flex flex-col gap-3">
-                    {% if post.fields.Status == 'Draft' %}
+                    {% if post.status == 'Draft' %}
                     <button
                         class="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase tracking-wide text-xs transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)]">
                         Submit for Review
                     </button>
-                    {% elif post.fields.Status == 'InReview' %}
+                    {% elif post.status == 'InReview' %}
                     <div class="grid grid-cols-2 gap-3">
                         <button
                             class="py-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold uppercase tracking-wide text-xs">
@@ -105,7 +105,7 @@
                     </div>
                     {% endif %}
 
-                    {% if post.fields.Status != 'Published' %}
+                    {% if post.status != 'Published' %}
                     <button
                         class="w-full py-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 font-bold uppercase tracking-wide text-[10px]">
                         Save as Draft
@@ -137,8 +137,8 @@
                 <!-- Quote -->
                 <div class="space-y-2">
                     <label class="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase">
-                        <input type="checkbox" class="accent-amber-500" {% if post.fields.Authenticity_Quote %}checked{%
-                            endif %}> Expert Quote
+                        <input type="checkbox" class="accent-amber-500" {% if post.auth_quote %}checked{% endif %}>
+                        Expert Quote
                     </label>
                     <textarea placeholder="Paste a unique quote here..."
                         class="w-full bg-black/20 border border-white/5 rounded px-3 py-2 text-sm text-gray-300 h-20 focus:border-amber-500/50 outline-none transition-colors"></textarea>
@@ -156,7 +156,7 @@
         </div>
 
         <!-- QA Score -->
-        {% if post.fields.QA_Score_GEO_AEO %}
+        {% if post.qa_score %}
         <div
             class="glass-panel p-6 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between group cursor-help">
             <div>
@@ -165,7 +165,7 @@
             </div>
             <div
                 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-500 group-hover:from-green-400 group-hover:to-blue-500 transition-all duration-500">
-                {{ post.fields.QA_Score_GEO_AEO }}
+                {{ post.qa_score }}
             </div>
         </div>
         {% endif %}

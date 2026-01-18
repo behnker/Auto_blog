@@ -926,8 +926,13 @@ async def post_detail_editor(request: Request, blog_id: str, post_id: str):
                 "content": f.get("Content", ""),
                 "slug": f.get("Slug", ""),
                 "status": f.get("Status", "Draft"),
-                "image": f.get("Image_URL", ""), # Assumes simple text field for now? Or Attachment? Let's assume URL string.
-                "feedback": f.get("User_Feedback", "")
+                "image": f.get("Image_URL", ""),
+                "feedback": f.get("User_Feedback", ""),
+                "primary_keyword": f.get("PrimaryKeyword", ""),
+                "meta_description": f.get("MetaDescription", ""),
+                "author_name": f.get("Author_Name", "Unassigned"),
+                "auth_quote": f.get("Authenticity_Quote", False), # Checkbox or text? Logic check
+                "qa_score": f.get("QA_Score_GEO_AEO", "")
             }
     except Exception as e:
         print(f"Error fetching post: {e}")
