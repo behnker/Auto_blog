@@ -404,29 +404,7 @@ async def agency_detail(request: Request, agency_id: str):
         "blogs": blogs
     })
 
-@router.get("/blogs/{blog_id}/posts/{post_id}", response_class=HTMLResponse)
-async def post_review_studio(request: Request, blog_id: str, post_id: str):
-    if not is_authenticated(request):
-        return RedirectResponse(url="/admin/login")
-        
-    post = None
-    blog = get_blog_config(blog_id)
-    
-    try:
-        api = get_airtable_client()
-        base_id = get_base_id(blog)
-        table = api.table(base_id, blog["airtable"]["table_name"])
-        record = table.get(post_id)
-        post = record
-    except Exception as e:
-        print(f"Error fetching post: {e}")
-        # raise HTTPException(status_code=404, detail="Post not found")
-    
-    return render_admin(request, "admin/post_review.html", {
-        "blog": blog,
-        "post": post,
-        "mode": "edit" 
-    })
+
 
 @router.post("/posts/save_content", response_class=RedirectResponse)
 async def save_post_content(
