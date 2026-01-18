@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from typing import Optional
 import os
 from datetime import datetime, timedelta
-from execution.utils import load_blogs_config, get_airtable_client, get_base_id
+from execution.utils import load_blogs_config, get_airtable_client, get_base_id, get_blog_config
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
