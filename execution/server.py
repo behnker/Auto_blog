@@ -167,31 +167,8 @@ async def read_post(slug: str, request: Request):
         import traceback
         print(f"Error reading post: {e}\n{traceback.format_exc()}")
         return HTMLResponse(content=f"<h1>Internal Server Error</h1><pre>{e}</pre>", status_code=500)
-            if not records:
-                 # Try fallback for hash-based slugs if accidentally saved that way or URL encoding
-                 records = table.all(formula=f"{{Slug}}='{slug.replace('#', '')}'")
 
-            if not records:
-                 raise HTTPException(status_code=404, detail="Post not found")
-            post = records[0]
-        except HTTPException:
-            raise
-        except Exception as e:
-            print(f"Error fetching post: {e}")
-            raise HTTPException(status_code=500, detail="Database Error")
 
-        return templates.TemplateResponse("post.html", {
-            "request": request,
-            "blog": blog,
-            "post": post,
-            "now": datetime.now()
-        })
-    except HTTPException:
-        raise
-    except Exception as e:
-        import traceback
-        print(f"CRITICAL ERROR in read_post: {e}\n{traceback.format_exc()}")
-        return HTMLResponse(content=f"<h1>Internal Server Error</h1><pre>{e}</pre>", status_code=500)
 
 @app.post("/api/cron/generate")
 async def trigger_generation(request: Request, background_tasks: BackgroundTasks, blog_id: str, token: str):
