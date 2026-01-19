@@ -416,49 +416,7 @@ async def agency_detail(request: Request, agency_id: str):
 
 
 
-@router.post("/posts/save_content", response_class=RedirectResponse)
-async def save_post_content(
-    request: Request,
-    blog_id: str = Form(...),
-    post_id: str = Form(...),
-    content: str = Form(...),
-    # Authenticity Fields (Optional checkboxes/text)
-    auth_quote_check: Optional[str] = Form(None),
-    auth_quote_text: Optional[str] = Form(None),
-    auth_opinion_check: Optional[str] = Form(None),
-    auth_opinion_text: Optional[str] = Form(None)
-):
-    if not is_authenticated(request):
-        return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    blog = get_blog_config(blog_id)
-    try:
-        api = get_airtable_client()
-        base_id = get_base_id(blog)
-        table = api.table(base_id, blog["airtable"]["table_name"])
-        
-        fields = {
-            "Content": content,
-            # Map Authenticity Fields (assuming schema supports these or we use generic fields for now)
-            # For UX-1 MVP, we might store these in JSON or specific columns if they exist.
-            # Based on spec, we should have them. If not, we'll likely need to add them to schema later.
-            # For now, let's assuming they map to "Authenticity_Quote" etc or we append to Notes?
-            # Let's save to "Authenticity_Quote" and "Authenticity_Opinion" text fields if they exist.
-        }
-        
-        # Simple Logic to update status if needed? Spec says "Save as Draft" button does this.
-        # This route is generic "Save".
-        
-        if author_id:
-             fields["Author"] = [author_id] # Linked Record
-
-        table.update(post_id, fields, typecast=True)
-        
-    except Exception as e:
-        print(f"Error saving post content: {e}")
-        return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}?error={e}", status_code=status.HTTP_303_SEE_OTHER)
-        
-    return RedirectResponse(url=f"/admin/blogs/{blog_id}/posts/{post_id}?success=Content+Saved", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/posts/status", response_class=RedirectResponse)
 async def update_post_status(request: Request, 
